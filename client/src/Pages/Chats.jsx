@@ -185,8 +185,8 @@ export default function Chats() {
         </div>
       </div>
       <div ref={chatRef} className="chats h-[82vh] p-2 overflow-scroll hide-scrollbar">
-        {messages.length == 0 && <div className="text-center my-3"> No Messages </div>}
-        {messages.map((message, index) => {
+        {messages?.length == 0 && <div className="text-center my-3"> No Messages </div>}
+        {messages?.map((message, index) => {
           return <Chat key={index} {...message} receiverId={receiverId} />
         })}
         {isTyping && <TypingIndicator />}

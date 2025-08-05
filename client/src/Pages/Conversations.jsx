@@ -51,7 +51,7 @@ export default function Conversations() {
           {(conversations?.length == 0 && loading) && <ConversationSpinner />}
           {(conversations?.length == 0 && !loading) ? <div className="text-center my-3"> No Conversation </div>
             :
-            conversations.map((conversation, index) => {
+            conversations?.map((conversation, index) => {
               return <Conversation key={index} {...conversation}
                 selectedConversation={selectedConversation}
                 setSelectedConversation={setSelectedConversation}
