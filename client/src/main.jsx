@@ -20,19 +20,19 @@ const Root = () => {
   if (!isOnline) return <NoInternet />
 
   return (
-    // <StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/"  >
-      <ConversationsWrapper>
-        <BrowserRouter>
-          <Toaster
-            position="top-center"
-            reverseOrder={false}
-          />
-          <App />
-        </BrowserRouter>
-      </ConversationsWrapper>
-    </ClerkProvider>
-    // </StrictMode>
+    <StrictMode>
+      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/"  >
+        <ConversationsWrapper>
+          <BrowserRouter>
+            <Toaster
+              position="top-center"
+              reverseOrder={false}
+            />
+            <App />
+          </BrowserRouter>
+        </ConversationsWrapper>
+      </ClerkProvider>
+    </StrictMode>
   );
 }
 

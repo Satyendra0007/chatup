@@ -14,7 +14,7 @@ export default function ConversationsWrapper({ children }) {
       const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}api/conversation`, {
         withCredentials: true,
       });
-      setCoversations(response.data.conversations)
+      setCoversations(response?.data?.conversations)
     } catch (error) {
       console.log(error)
     }

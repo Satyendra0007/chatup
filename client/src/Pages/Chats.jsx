@@ -18,12 +18,12 @@ export default function Chats() {
   const [messages, setMessages] = useState([])
   const [text, setText] = useState("")
   const { name, imageUrl, email, receiverId } = location.state || {};
-  const { fetchConversations, onlineUsers, markAsRead, conversations } = useConversationsStore()
+  const { fetchConversations, onlineUsers, markAsRead } = useConversationsStore()
   const chatRef = useRef(null);
   const lastTypingTimeRef = useRef(null)
   const typingTimeOutRef = useRef(null)
   const [isTyping, setIsTyping] = useState(false)
-  const isOnline = onlineUsers.includes(receiverId)
+  const isOnline = onlineUsers?.includes(receiverId)
   const TYPING_TIMEOUT = 3000;
   let typing = false;
 
@@ -57,7 +57,7 @@ export default function Chats() {
       const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}api/message/get/${convid}`, {
         withCredentials: true,
       });
-      setMessages(response.data)
+      setMessages(response?.data)
       fetchConversations();
     } catch (error) {
       console.log(error)
@@ -75,7 +75,7 @@ export default function Chats() {
       socket.emit('send-message', data)
       socket.emit("stop-typing", convid);
       typing = false;
-      setMessages((prev) => [...prev, data.newMessage]);
+      setMessages((prev) => [...prev, data?.newMessage]);
       fetchConversations();
       setText("")
     } catch (error) {
@@ -85,7 +85,7 @@ export default function Chats() {
 
   useEffect(() => {
     fetchMessages();
-    socket.emit('seen-message', { conversationId: convid, userId: user.id })
+    socket.emit('seen-message', { conversationId: convid, userId: user?.id })
   }, [convid])
 
 
@@ -100,9 +100,9 @@ export default function Chats() {
 
   useEffect(() => {
     const handleReceive = (payload) => {
-      if (payload.conversationId === convid) {
+      if (payload?.conversationId === convid) {
         setMessages((prev) => [...prev, payload]);
-        socket.emit('seen-message', { conversationId: convid, userId: user.id })
+        socket.emit('seen-message', { conversationId: convid, userId: user?.id })
       }
       else {
         toast.success("New Message Received", { id: 'new-msg' });
@@ -111,7 +111,7 @@ export default function Chats() {
     };
 
     const handleTyping = (payload) => {
-      if (payload.conversationId === convid && payload.senderId != user.id) {
+      if (payload?.conversationId === convid && payload?.senderId != user?.id) {
         setIsTyping(true)
       }
     }
@@ -123,11 +123,11 @@ export default function Chats() {
     }
 
     const handleSeen = (payload) => {
-      if (payload.conversationId === convid && payload.userId !== user.id) {
+      if (payload?.conversationId === convid && payload?.userId !== user?.id) {
         setMessages(prev =>
           prev.map(mess =>
-            (mess.senderId === user.id && !mess.seenBy.includes(payload.userId))
-              ? { ...mess, seenBy: [... new Set([...mess.seenBy, payload.userId])] }
+            (mess.senderId === user.id && !mess.seenBy?.includes(payload.userId))
+              ? { ...mess, seenBy: [... new Set([...mess.seenBy, payload?.userId])] }
               : mess
           )
         )
@@ -199,7 +199,7 @@ export default function Chats() {
             className='border border-gray-400 w-72 md:w-full h-11.5 md:h-10 px-2.5 rounded-lg shadow-lg md:text-sm' type="text" placeholder='Type Message Here ....' />
         </div>
         <div className="button">
-          <button disabled={text.length === 0} onClick={sendMessage} className="p-3 md:p-2.5 cursor-pointer primary-bg text-white text-xl rounded-lg disabled:opacity-90 "><BsFillSendFill /></button>
+          <button disabled={text?.length === 0} onClick={sendMessage} className="p-3 md:p-2.5 cursor-pointer primary-bg text-white text-xl rounded-lg disabled:opacity-90 "><BsFillSendFill /></button>
         </div>
       </div>
     </div>

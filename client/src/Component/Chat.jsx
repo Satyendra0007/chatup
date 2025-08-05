@@ -6,7 +6,7 @@ import { PiSealCheck } from "react-icons/pi";
 export default function Chat({ text, time, senderId, seenBy, receiverId }) {
   const { user } = useUser();
   const isUser = (user.id === senderId);
-  const isSeen = seenBy.includes(receiverId)
+  const isSeen = seenBy?.includes(receiverId)
 
 
   const convertToIST = (milliseconds) => {

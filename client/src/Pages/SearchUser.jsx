@@ -15,7 +15,7 @@ export default function SearchUser() {
       const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}api/user/search?email=${search}`, {
         withCredentials: true,
       });
-      setUser(response.data)
+      setUser(response?.data)
     } catch (error) {
       console.log(error)
     }

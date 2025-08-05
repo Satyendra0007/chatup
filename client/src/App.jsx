@@ -6,14 +6,10 @@ import SearchUser from "./Pages/SearchUser";
 import Chats from "./Pages/Chats"
 import ChatLayout from "./Pages/ChatLayout";
 import {
-  ClerkProvider,
   SignedIn,
   SignedOut,
-  RedirectToSignIn,
-  UserButton,
-  useUser
-} from '@clerk/clerk-react'
 
+} from '@clerk/clerk-react'
 
 
 function App() {

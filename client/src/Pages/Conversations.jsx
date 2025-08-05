@@ -15,7 +15,7 @@ export default function Conversations() {
   const [selectedConversation, setSelectedConversation] = useState("")
   const { loading, conversations, fetchConversations } = useConversationsStore()
   const location = useLocation();
-  const isChatLayout = location.pathname.startsWith("/chatlayout/")
+  const isChatLayout = location.pathname?.startsWith("/chatlayout/")
   const { user } = useUser();
 
   useEffect(() => {
@@ -48,8 +48,8 @@ export default function Conversations() {
           <h1 className='px-3 text-2xl font-semibold mb-4 md:mb-0 md:py-4'>Conversations </h1>
         </div>
         <div className="conversations space-y-1 flex flex-col items-center justify-center overflow-scroll hide-scrollbar">
-          {(conversations.length == 0 && loading) && <ConversationSpinner />}
-          {(conversations.length == 0 && !loading) ? <div className="text-center my-3"> No Conversation </div>
+          {(conversations?.length == 0 && loading) && <ConversationSpinner />}
+          {(conversations?.length == 0 && !loading) ? <div className="text-center my-3"> No Conversation </div>
             :
             conversations.map((conversation, index) => {
               return <Conversation key={index} {...conversation}
