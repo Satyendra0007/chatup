@@ -16,12 +16,12 @@ const io = new Server(server, {
   cors: {
     // origin: process.env.FRONTEND_URL,
     origin: "*",
-    methods: ['GET,POST'],
+    methods: ['GET', 'POST'],
     credentials: true
   }
 })
 
-app.use(clerkMiddleware());
+app.use("/api", clerkMiddleware());
 app.use(cors({
   // origin: process.env.FRONTEND_URL,
   origin: "*",
