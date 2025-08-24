@@ -1,17 +1,20 @@
 import socket from "@/utils/socket";
 import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
+import { useAxiosClient } from "@/utils/useAxiosClient";
+
 export const ConversationsStore = createContext();
 
 export default function ConversationsWrapper({ children }) {
   const [conversations, setCoversations] = useState([])
   const [loading, setLoading] = useState(false)
   const [onlineUsers, setOnlineUsers] = useState([])
+  const axiosClient = useAxiosClient();
 
   const fetchConversations = async () => {
     setLoading(true)
     try {
-      const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}api/conversation`, {
+      const response = await axiosClient.get(`${import.meta.env.VITE_SERVER_URL}api/conversation`, {
         withCredentials: true,
       });
       setCoversations(response?.data?.conversations)
@@ -23,7 +26,7 @@ export default function ConversationsWrapper({ children }) {
 
   const markAsUnread = async (conversationId, senderId) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}api/conversation/markunread`, {
+      const response = await axiosClient.post(`${import.meta.env.VITE_SERVER_URL}api/conversation/markunread`, {
         conversationId, senderId
       }, {
         withCredentials: true,
@@ -35,7 +38,7 @@ export default function ConversationsWrapper({ children }) {
 
   const markAsRead = async (conversationId) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}api/conversation/markread`, {
+      const response = await axiosClient.post(`${import.meta.env.VITE_SERVER_URL}api/conversation/markread`, {
         conversationId
       }, {
         withCredentials: true,

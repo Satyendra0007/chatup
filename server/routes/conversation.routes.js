@@ -1,15 +1,15 @@
 const router = require("express").Router()
 const conversationController = require("../controllers/conversation.controllers")
 const { body } = require("express-validator")
-const { requireAuth } = require('@clerk/express')
+const authenticateUser = require("../middleware/authenticateUser")
 
 router.route('/').get(
-  requireAuth(),
+  authenticateUser,
   conversationController.getConversations
 )
 
 router.route("/create").post(
-  requireAuth(),
+  authenticateUser,
   body("name")
     .if((value, { req }) => req.body.isGroup)
     .notEmpty().withMessage("Group chat name is required")
@@ -42,7 +42,7 @@ router.route("/create").post(
 )
 
 router.route("/markread").post(
-  requireAuth(),
+  authenticateUser,
   body('conversationId')
     .notEmpty().withMessage("conversation id can't be empty ")
     .isMongoId().withMessage("conversation id must be a mongodb id"),

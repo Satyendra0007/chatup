@@ -49,7 +49,7 @@ export default function Conversations() {
         </div>
         <div className="conversations space-y-1 flex flex-col items-center justify-center overflow-scroll hide-scrollbar">
           {(conversations?.length == 0 && loading) && <ConversationSpinner />}
-          {(conversations?.length == 0 && !loading) ? <div className="text-center my-3"> No Conversation </div>
+          {(conversations?.length <= 0 && !loading) ? <div className="text-center my-3"> No Conversation </div>
             :
             conversations?.map((conversation, index) => {
               return <Conversation key={index} {...conversation}

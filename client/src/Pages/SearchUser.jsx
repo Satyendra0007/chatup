@@ -9,6 +9,7 @@ import { MdGroupAdd } from "react-icons/md";
 import UserBadge from "@/Component/UserBadge";
 import toast from "react-hot-toast";
 import { useUser } from "@clerk/clerk-react";
+import { useAxiosClient } from "@/utils/useAxiosClient";
 
 export default function SearchUser() {
   const { user } = useUser();
@@ -18,10 +19,11 @@ export default function SearchUser() {
   const [isGroup, setIsGroup] = useState(false)
   const [selectedUsers, setSelectedUsers] = useState([])
   const [name, setName] = useState("")
+  const axiosClient = useAxiosClient();
 
   const searchUser = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}api/user/search?email=${search}`, {
+      const response = await axiosClient.get(`${import.meta.env.VITE_SERVER_URL}api/user/search?email=${search}`, {
         withCredentials: true,
       });
       if (response.status === 200) {
@@ -54,7 +56,7 @@ export default function SearchUser() {
     }
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}api/conversation/create`,
+      const response = await axiosClient.post(`${import.meta.env.VITE_SERVER_URL}api/conversation/create`,
         data,
         {
           withCredentials: true,

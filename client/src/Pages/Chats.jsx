@@ -13,6 +13,7 @@ import toast from "react-hot-toast";
 import OnlineBadge from "@/Component/OnlineBadge";
 import { GoInfo } from "react-icons/go";
 import ChatInformation from "@/Component/ChatInformation";
+import { useAxiosClient } from "@/utils/useAxiosClient";
 
 export default function Chats() {
   const { convid } = useParams();
@@ -29,11 +30,11 @@ export default function Chats() {
   const [isTyping, setIsTyping] = useState(false)
   const isOnline = onlineUsers?.includes(receiverId)
   const TYPING_TIMEOUT = 3000;
+  const axiosClient = useAxiosClient();
   let typing = false;
   const onlineGroupUsers = members?.filter(member =>
     (onlineUsers.includes(member.id) && member.id !== user.id)
   )
-
 
   const handleOnChange = (e) => {
     setText(e.target.value)
@@ -53,7 +54,6 @@ export default function Chats() {
       const diff = now - lastTypingTimeRef.current
       if (diff >= TYPING_TIMEOUT && typing) {
         socket.emit("stop-typing", convid)
-        console.log('stop typing')
         typing = false;
       }
     }, TYPING_TIMEOUT)
@@ -62,7 +62,7 @@ export default function Chats() {
 
   const fetchMessages = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}api/message/get/${convid}`, {
+      const response = await axiosClient.get(`${import.meta.env.VITE_SERVER_URL}api/message/get/${convid}`, {
         withCredentials: true,
       });
       setMessages(response?.data)
@@ -74,7 +74,7 @@ export default function Chats() {
 
   const sendMessage = async () => {
     try {
-      const { data } = await axios.post(`${import.meta.env.VITE_SERVER_URL}api/message/send`, {
+      const { data } = await axiosClient.post(`${import.meta.env.VITE_SERVER_URL}api/message/send`, {
         conversationId: convid,
         text
       }, {

@@ -1,10 +1,10 @@
 const router = require("express").Router();
 const messageController = require("../controllers/message.controllers")
 const { param, body } = require("express-validator")
-const { requireAuth } = require("@clerk/express")
+const authenticateUser = require("../middleware/authenticateUser");
 
 router.route("/get/:conversationId").get(
-  requireAuth(),
+  authenticateUser,
   param("conversationId")
     .notEmpty().withMessage("conversatio id should not be empty")
     .isMongoId().withMessage("conversatio id must be a mongodb id"),
@@ -12,7 +12,7 @@ router.route("/get/:conversationId").get(
 )
 
 router.route("/send").post(
-  requireAuth(),
+  authenticateUser,
   body("conversationId")
     .notEmpty().withMessage("conversation id should not be empty")
     .isMongoId().withMessage("conversatio id must be a mongodb id"),
