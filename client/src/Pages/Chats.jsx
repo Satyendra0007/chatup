@@ -10,6 +10,9 @@ import socket from "@/utils/socket";
 import { useUser } from "@clerk/clerk-react";
 import TypingIndicator from "@/spinners/TypingIndicator";
 import toast from "react-hot-toast";
+import OnlineBadge from "@/Component/OnlineBadge";
+import { GoInfo } from "react-icons/go";
+import ChatInformation from "@/Component/ChatInformation";
 
 export default function Chats() {
   const { convid } = useParams();
@@ -17,7 +20,8 @@ export default function Chats() {
   const location = useLocation();
   const [messages, setMessages] = useState([])
   const [text, setText] = useState("")
-  const { name, imageUrl, email, receiverId } = location.state || {};
+  const [showChatInfo, setShowChatInfo] = useState(true);
+  const { name, imageUrl, email, receiverId, isGroup, members, groupAdmin } = location.state || {};
   const { fetchConversations, onlineUsers, markAsRead } = useConversationsStore()
   const chatRef = useRef(null);
   const lastTypingTimeRef = useRef(null)
@@ -26,6 +30,10 @@ export default function Chats() {
   const isOnline = onlineUsers?.includes(receiverId)
   const TYPING_TIMEOUT = 3000;
   let typing = false;
+  const onlineGroupUsers = members?.filter(member =>
+    (onlineUsers.includes(member.id) && member.id !== user.id)
+  )
+
 
   const handleOnChange = (e) => {
     setText(e.target.value)
@@ -86,6 +94,9 @@ export default function Chats() {
   useEffect(() => {
     fetchMessages();
     socket.emit('seen-message', { conversationId: convid, userId: user?.id })
+    if (showChatInfo) {
+      setShowChatInfo(false)
+    }
   }, [convid])
 
 
@@ -162,36 +173,61 @@ export default function Chats() {
 
 
   return (
-    <div className="flex flex-col">
-      <div className="user flex p-3 md:p-1 bg-gray-100 ">
-        <Link to="/conversation" >
-          <div className="button text-2xl h-12 w-12 flex-shrink-0 flex justify-center items-center  bg-gray-200 rounded-full shadow-xl md:hidden">
-            <FaArrowLeft />
-          </div>
-        </Link>
-        <div className="info">
-          <div className="flex gap-4 px-2  ">
-            <div className="image ">
-              <img className="w-12 h-12 rounded-full" src={imageUrl || userimage} alt="" />
+    <div className="flex flex-col relative">
+      <div className="header flex p-3 md:p-1.5 bg-gray-100 items-center justify-between ">
+        <div className=" user flex">
+          <Link to="/conversation" >
+            <div className="button text-2xl h-12 w-12 flex-shrink-0 flex justify-center items-center  bg-gray-200 rounded-full shadow-xl md:hidden">
+              <FaArrowLeft />
             </div>
-            <div className="info">
-              <h3 className="font-semibold capitalize">{name}</h3>
-              <p className=" text-[11px]">{email}</p>
-              <p className={`${isOnline ? 'text-green-600' : 'text-gray-700'} text-[10px] font-semibold`}>
-                {isOnline ? 'Online' : 'Offline'}
-              </p>
+          </Link>
+          <div className="info">
+            <div className="flex gap-4 px-2  ">
+              <div className="image ">
+                <img className="w-12 h-12 rounded-full" src={imageUrl || userimage} alt="" />
+              </div>
+              <div className="info">
+                <h3 className="font-semibold capitalize mb-0.5">{name}</h3>
+
+                {isGroup && <div className="flex items-center gap-1 overflow-scroll hide-scrollbar">
+                  {(onlineGroupUsers.length <= 0)
+                    ? <p className="text-xs "> NO Active Users </p>
+                    : onlineGroupUsers?.map(user => < OnlineBadge key={user.id} {...user} />)
+                  }
+                </div>}
+
+                {!isGroup && <>
+                  {/* <p className=" text-[11px]">{email}</p> */}
+                  <p className={`${isOnline ? 'text-green-600' : 'text-gray-700'} text-[10px] font-semibold`}>
+                    {isOnline ? 'Online' : 'Offline'}
+                  </p>
+                </>}
+              </div>
             </div>
           </div>
         </div>
+        <div className="info-button">
+          <button
+            className="p-2 rounded-full primary-bg text-white cursor-pointer "
+            onClick={() => setShowChatInfo(prev => !prev)}
+          >
+            <GoInfo />
+          </button>
+        </div>
       </div>
+
+      {showChatInfo && <ChatInformation setShowChatInfo={setShowChatInfo} {...location.state} />}
+
       <div ref={chatRef} className="chats h-[82vh] p-2 overflow-scroll hide-scrollbar">
-        {messages?.length == 0 && <div className="text-center my-3"> No Messages </div>}
-        {messages?.map((message, index) => {
-          return <Chat key={index} {...message} receiverId={receiverId} />
-        })}
+        {messages?.length === 0
+          ? <div className="text-center my-3"> No Messages </div>
+          : messages?.map((message, index) => {
+            return <Chat key={index} {...message} receiverId={receiverId} members={members} isGroup={isGroup} groupAdmin={groupAdmin} />
+          })}
         {isTyping && <TypingIndicator />}
       </div>
-      <div className="options flex justify-between px-2 md:gap-4">
+
+      <div className="chatbox flex justify-between px-2 md:gap-4">
         <div className="input md:flex-grow-1 ">
           <input
             value={text}

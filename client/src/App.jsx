@@ -8,7 +8,6 @@ import ChatLayout from "./Pages/ChatLayout";
 import {
   SignedIn,
   SignedOut,
-
 } from '@clerk/clerk-react'
 
 

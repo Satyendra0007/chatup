@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom"
 import userimage from '../assets/user.png'
 import { useUser } from "@clerk/clerk-react";
 
-export default function Conversation({ name, conversationId, receiverId, imageUrl, email, lastMessage, unreadBy, selectedConversation, setSelectedConversation }) {
+export default function Conversation({ name, conversationId, receiverId, imageUrl, email, lastMessage, unreadBy, selectedConversation, setSelectedConversation, isGroup, groupAdmin, members }) {
 
   const { user } = useUser();
   const navigate = useNavigate();
@@ -10,8 +10,15 @@ export default function Conversation({ name, conversationId, receiverId, imageUr
   const isSelected = conversationId === selectedConversation;
 
   const handleOnClick = (conversationId) => {
+    let data;
+    if (isGroup) {
+      data = { name, isGroup, groupAdmin, members }
+    }
+    else {
+      data = { receiverId, name, imageUrl, email, isGroup }
+    }
     navigate(`/chatlayout/chats/${conversationId}`, {
-      state: { receiverId, name, imageUrl, email }
+      state: data
     })
     setSelectedConversation(conversationId)
   }

@@ -16,9 +16,13 @@ module.exports.getUser = async (req, res) => {
   if (!result.isEmpty()) {
     return res.status(400).json({ error: result.array() })
   }
-  const { email } = matchedData(req);
   try {
-    const { id, firstName, lastName, imageUrl, emailAddresses } = (await getUserByEmail(email)).data[0];
+    const { email } = matchedData(req);
+    const { data, totalCount } = await getUserByEmail(email)
+    if (totalCount === 0) {
+      return res.status(404).json({ message: "User Not Found " })
+    }
+    const { id, firstName, lastName, imageUrl, emailAddresses } = data[0];
     res.status(200).json({
       id,
       firstName,
