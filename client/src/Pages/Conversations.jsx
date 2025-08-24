@@ -47,7 +47,7 @@ export default function Conversations() {
         <div className="heading">
           <h1 className='px-3 text-2xl font-semibold mb-4 md:mb-0 md:py-4'>Conversations </h1>
         </div>
-        <div className="conversations h-full p-1 space-y-1 flex flex-col items-center overflow-scroll hide-scrollbar">
+        <div className="conversations  p-1 space-y-1 flex flex-col items-center overflow-scroll hide-scrollbar">
           {(conversations?.length == 0 && loading) && <ConversationSpinner />}
           {(conversations?.length <= 0 && !loading) ? <div className="text-center my-3"> No Conversation </div>
             :

@@ -237,7 +237,7 @@ export default function Chats() {
         {isTyping && <TypingIndicator />}
       </div>
 
-      <div className="chatbox flex justify-between px-2 gap-2 sticky bottom-2 z-50 bg-white left-0">
+      <div className="chatbox flex justify-between px-2 gap-2 sticky bottom-2 z-40 bg-white left-0">
         <div className="input flex-grow-1 ">
           <input
             value={text}
