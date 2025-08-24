@@ -14,14 +14,17 @@ import OnlineBadge from "@/Component/OnlineBadge";
 import { GoInfo } from "react-icons/go";
 import ChatInformation from "@/Component/ChatInformation";
 import { useAxiosClient } from "@/utils/useAxiosClient";
+import ChatSkeleton from "@/spinners/ChatSkeleton";
 
 export default function Chats() {
   const { convid } = useParams();
   const { user } = useUser();
   const location = useLocation();
   const [messages, setMessages] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [chatLoading, setChatLoading] = useState(false);
   const [text, setText] = useState("")
-  const [showChatInfo, setShowChatInfo] = useState(true);
+  const [showChatInfo, setShowChatInfo] = useState(false);
   const { name, imageUrl, email, receiverId, isGroup, members, groupAdmin } = location.state || {};
   const { fetchConversations, onlineUsers, markAsRead } = useConversationsStore()
   const chatRef = useRef(null);
@@ -61,6 +64,7 @@ export default function Chats() {
   }
 
   const fetchMessages = async () => {
+    setChatLoading(true)
     try {
       const response = await axiosClient.get(`${import.meta.env.VITE_SERVER_URL}api/message/get/${convid}`, {
         withCredentials: true,
@@ -70,9 +74,11 @@ export default function Chats() {
     } catch (error) {
       console.log(error)
     }
+    setChatLoading(false)
   }
 
   const sendMessage = async () => {
+    setLoading(true)
     try {
       const { data } = await axiosClient.post(`${import.meta.env.VITE_SERVER_URL}api/message/send`, {
         conversationId: convid,
@@ -89,6 +95,7 @@ export default function Chats() {
     } catch (error) {
       console.log(error)
     }
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -173,11 +180,11 @@ export default function Chats() {
 
 
   return (
-    <div className="flex flex-col relative">
-      <div className="header flex p-3 md:p-1.5 bg-gray-100 items-center justify-between ">
+    <div className="flex flex-col h-screen relative">
+      <div className="header flex py-2 px-3 md:p-1.5 bg-gray-100 items-center justify-between ">
         <div className=" user flex">
           <Link to="/conversation" >
-            <div className="button text-2xl h-12 w-12 flex-shrink-0 flex justify-center items-center  bg-gray-200 rounded-full shadow-xl md:hidden">
+            <div className="button text-xl h-11 w-11 flex-shrink-0 flex justify-center items-center  bg-gray-200 rounded-full shadow-xl md:hidden">
               <FaArrowLeft />
             </div>
           </Link>
@@ -218,24 +225,27 @@ export default function Chats() {
 
       {showChatInfo && <ChatInformation setShowChatInfo={setShowChatInfo} {...location.state} />}
 
-      <div ref={chatRef} className="chats h-[82vh] p-2 overflow-scroll hide-scrollbar">
-        {messages?.length === 0
-          ? <div className="text-center my-3"> No Messages </div>
-          : messages?.map((message, index) => {
-            return <Chat key={index} {...message} receiverId={receiverId} members={members} isGroup={isGroup} groupAdmin={groupAdmin} />
-          })}
+      <div ref={chatRef} className="chats h-full md:h-[83vh] p-2 overflow-scroll hide-scrollbar">
+
+        {chatLoading
+          ? <ChatSkeleton />
+          : (messages?.length === 0)
+            ? <div className="text-center my-3"> No Messages </div>
+            : messages?.map((message, index) => {
+              return <Chat key={index} {...message} receiverId={receiverId} members={members} isGroup={isGroup} groupAdmin={groupAdmin} />
+            })}
         {isTyping && <TypingIndicator />}
       </div>
 
-      <div className="chatbox flex justify-between px-2 md:gap-4">
-        <div className="input md:flex-grow-1 ">
+      <div className="chatbox flex justify-between px-2 gap-2 sticky bottom-2 z-50 bg-white left-0">
+        <div className="input flex-grow-1 ">
           <input
             value={text}
             onChange={handleOnChange}
-            className='border border-gray-400 w-72 md:w-full h-11.5 md:h-10 px-2.5 rounded-lg shadow-lg md:text-sm' type="text" placeholder='Type Message Here ....' />
+            className='border border-gray-300 w-full h-11.5 md:h-10 px-2.5 rounded-lg  md:text-sm' type="text" placeholder='Type Message Here ....' />
         </div>
         <div className="button">
-          <button disabled={text?.length === 0} onClick={sendMessage} className="p-3 md:p-2.5 cursor-pointer primary-bg text-white text-xl rounded-lg disabled:opacity-90 "><BsFillSendFill /></button>
+          <button disabled={text?.length === 0 || loading} onClick={sendMessage} className="p-3 md:p-2.5 cursor-pointer primary-bg text-white text-xl rounded-lg disabled:opacity-90 "><BsFillSendFill /></button>
         </div>
       </div>
     </div>

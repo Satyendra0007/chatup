@@ -3,8 +3,8 @@ import React from 'react';
 
 export default function ConvSpinner() {
   return (
-    <div className="space-y-3  p-4 w-80">
-      {Array.from({ length: 5 }).map((_, i) => (
+    <div className="space-y-3  p-4 w-full">
+      {Array.from({ length: 8 }).map((_, i) => (
         <div
           key={i}
           className="flex items-center space-x-4 animate-pulse bg-white dark:bg-gray-800 p-3 rounded-lg shadow"

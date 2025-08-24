@@ -26,7 +26,7 @@ export default function Conversation({ name, conversationId, receiverId, imageUr
 
   return (
     <div
-      className={`flex justify-between items-center px-2 py-2 md:py-1 shadow-sm  w-[22rem] md:w-80  cursor-pointer ${isSelected ? "bg-slate-300" : "hover:bg-slate-100"}`}
+      className={`flex justify-between items-center px-2 py-2 md:py-1 shadow-sm w-full md:w-80  cursor-pointer ${isSelected ? "bg-slate-300" : "hover:bg-slate-100"}`}
       onClick={() => handleOnClick(conversationId)}
     >
       <div className="left flex gap-4 items-center">

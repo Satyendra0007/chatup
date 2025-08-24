@@ -1,7 +1,6 @@
 import Navbar from "@/Component/Navbar";
 import User from "@/Component/User";
 import { useConversationsStore } from "@/Context/ConversationsStore";
-import axios from "axios";
 import { useState } from "react";
 import { LuUserSearch } from "react-icons/lu";
 import { HiUserAdd } from "react-icons/hi";
@@ -10,6 +9,7 @@ import UserBadge from "@/Component/UserBadge";
 import toast from "react-hot-toast";
 import { useUser } from "@clerk/clerk-react";
 import { useAxiosClient } from "@/utils/useAxiosClient";
+
 
 export default function SearchUser() {
   const { user } = useUser();
@@ -64,9 +64,12 @@ export default function SearchUser() {
       );
       fetchConversations();
       if (isGroup) {
-        toast("Group Created !")
+        toast.success("Group Created !")
         setName("")
         setSelectedUsers([])
+      }
+      else {
+        toast.success("User Added !")
       }
       setUserData(null)
     } catch (error) {

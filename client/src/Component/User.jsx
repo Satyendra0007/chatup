@@ -19,7 +19,7 @@ export default function User({ firstName, lastName, email, imageUrl, id, createC
   const isAlreadyAdded = selectedUsers.find(user => user.id === id)
 
   return (
-    <div className=" flex justify-between items-center px-2  py-1 bg-slate-50 w-[21rem]  border border-gray-400 rounded-2xl ">
+    <div className=" flex justify-between items-center px-2  py-1.5 bg-slate-50 w-[21rem]  border border-gray-400 rounded-2xl ">
       <div className="info flex gap-4">
         <div className="image ">
           <img className="w-12 md:w-10 h-12 md:h-10 rounded-full" src={imageUrl} alt="" />

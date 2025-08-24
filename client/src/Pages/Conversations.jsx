@@ -42,12 +42,12 @@ export default function Conversations() {
 
   return (
     <div className="box flex ">
-      <div className='md:min-h-screen w-full md:w-80 box-border md:relative md:border-r-2'>
+      <div className='md:min-h-screen pt-3 w-full md:w-80 box-border md:relative md:border-r-2'>
         <Navbar />
         <div className="heading">
           <h1 className='px-3 text-2xl font-semibold mb-4 md:mb-0 md:py-4'>Conversations </h1>
         </div>
-        <div className="conversations space-y-1 flex flex-col items-center justify-center overflow-scroll hide-scrollbar">
+        <div className="conversations h-full p-1 space-y-1 flex flex-col items-center overflow-scroll hide-scrollbar">
           {(conversations?.length == 0 && loading) && <ConversationSpinner />}
           {(conversations?.length <= 0 && !loading) ? <div className="text-center my-3"> No Conversation </div>
             :
@@ -58,7 +58,7 @@ export default function Conversations() {
               />
             })}
         </div>
-        <div className="button absolute right-3 bottom-3 z-10">
+        <div className="button absolute right-6 bottom-6 z-10">
           <Link to="/chatlayout/search">
             <button className='p-3 primary-bg text-white text-3xl rounded-full cursor-pointer'><HiUserAdd /></button>
           </Link>
