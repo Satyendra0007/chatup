@@ -83,7 +83,7 @@ export default function SearchUser() {
 
   return (
     <div className="md:my-10">
-      <div className="navbar md:hidden">
+      <div className="navbar md:hidden pt-3">
         <Navbar />
       </div>
 

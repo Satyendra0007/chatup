@@ -11,7 +11,7 @@ export default function LandingPage() {
   return (
     <>
       <Navbar />
-      <main className='md:flex justify-center py-5 md:py-0 items-center md:max-w-6xl mx-auto'>
+      <main className='md:flex justify-center py-5 md:py-0 items-center md:max-w-6xl mx-auto '>
         <div className="top h-80 relative md:w-1/2 md:h-[76vh] md:order-1 ">
           <div className="background h-full flex justify-center items-center relative mx-auto">
             <div className="circle h-80 w-80  primary-bg rounded-full md:h-96 md:w-96 lg:w-[26rem] lg:h-[26rem"></div>
@@ -37,23 +37,23 @@ export default function LandingPage() {
           </div>
         </div>
       </main>
-      <footer className=' '>
+      {/* <footer className=' '>
         <div className=" text-center mx-auto absolute bottom-5 md:bottom-2 w-full">
           <a className='text-white py-3  px-10 rounded-full primary-bg inline-flex justify-center items-center gap-1 text-xs hover:opacity-90 ' target='_blank' href="https://satyendra03.vercel.app/">
             <FaUser className='' />
             <span>About Me</span>
           </a>
         </div>
-      </footer>
+      </footer> */}
 
-      {/* <footer className=' '>
+      <footer className=' md:mt-5 '>
         <div className=" text-center mx-auto w-full">
           <a className='text-white py-3  px-10 rounded-full primary-bg inline-flex justify-center items-center gap-1 text-xs hover:opacity-90 ' target='_blank' href="https://satyendra03.vercel.app/">
             <FaUser className='' />
             <span>About Me</span>
           </a>
         </div>
-      </footer> */}
+      </footer>
     </>
   )
 }
