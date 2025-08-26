@@ -9,11 +9,13 @@ import UserBadge from "@/Component/UserBadge";
 import toast from "react-hot-toast";
 import { useUser } from "@clerk/clerk-react";
 import { useAxiosClient } from "@/utils/useAxiosClient";
+import Spinner from "@/spinners/Spinner";
 
 
 export default function SearchUser() {
   const { user } = useUser();
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false)
   const [userData, setUserData] = useState(null)
   const { fetchConversations } = useConversationsStore()
   const [isGroup, setIsGroup] = useState(false)
@@ -22,6 +24,7 @@ export default function SearchUser() {
   const axiosClient = useAxiosClient();
 
   const searchUser = async () => {
+    setLoading(true)
     try {
       const response = await axiosClient.get(`${import.meta.env.VITE_SERVER_URL}api/user/search?email=${search}`, {
         withCredentials: true,
@@ -33,9 +36,11 @@ export default function SearchUser() {
       console.log(error)
       toast.error("User Not Found")
     }
+    setLoading(false)
   }
 
   const createConversation = async (members) => {
+    setLoading(true)
     let data;
     if (!isGroup) {
       data = {
@@ -75,6 +80,7 @@ export default function SearchUser() {
     } catch (error) {
       console.log(error)
     }
+    setLoading(false)
   }
 
   const removeUser = (id) => {
@@ -82,7 +88,8 @@ export default function SearchUser() {
   }
 
   return (
-    <div className="md:my-10">
+    <div className="md:my-10 relative">
+      {loading && <Spinner />}
       <div className="navbar md:hidden pt-3">
         <Navbar />
       </div>
@@ -129,7 +136,7 @@ export default function SearchUser() {
 
           <button
             onClick={createConversation}
-            disabled={!name}
+            disabled={!name || loading}
             className="px-6 py-3 primary-bg text-white rounded-full cursor-pointer disabled:opacity-90">
             Create Group
           </button>
@@ -147,7 +154,7 @@ export default function SearchUser() {
             />
           </div>
           <div className="button">
-            <button disabled={!search} onClick={searchUser} className="p-3 md:p-2 primary-bg text-white text-2xl rounded-r-lg  cursor-pointer disabled:opacity-90 ">
+            <button disabled={!search || loading} onClick={searchUser} className="p-3 md:p-2 primary-bg text-white text-2xl rounded-r-lg  cursor-pointer disabled:opacity-90 ">
               <LuUserSearch />
             </button>
           </div>

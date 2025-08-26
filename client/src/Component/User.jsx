@@ -2,9 +2,11 @@ import user from "@/assets/user.png"
 import { HiUserAdd } from "react-icons/hi";
 import { useUser } from "@clerk/clerk-react";
 import { MdDone } from "react-icons/md";
+import { useConversationsStore } from "@/Context/ConversationsStore";
 
 export default function User({ firstName, lastName, email, imageUrl, id, createConversation, isGroup, selectedUsers, setSelectedUsers, setSearch }) {
   const { user } = useUser();
+  const { conversations } = useConversationsStore()
 
   const handleOnClick = () => {
     if (isGroup) {
@@ -17,6 +19,7 @@ export default function User({ firstName, lastName, email, imageUrl, id, createC
   }
 
   const isAlreadyAdded = selectedUsers.find(user => user.id === id)
+  const userAlreadyAdded = conversations.find((conversation) => (conversation.receiverId === id && !isGroup))
 
   return (
     <div className=" flex justify-between items-center px-2  py-1.5 bg-slate-50 w-[21rem]  border border-gray-400 rounded-2xl ">
@@ -31,11 +34,11 @@ export default function User({ firstName, lastName, email, imageUrl, id, createC
       </div>
       <div className="button">
         {(user.id !== id) && <button
-          disabled={isAlreadyAdded}
+          disabled={isAlreadyAdded || userAlreadyAdded}
           onClick={handleOnClick}
           className='p-1.5 primary-bg text-white text-2xl rounded-full cursor-pointer'
         >
-          {isAlreadyAdded ? <MdDone /> : <HiUserAdd />}
+          {(isAlreadyAdded || userAlreadyAdded) ? <MdDone /> : <HiUserAdd />}
         </button>}
       </div>
     </div>
