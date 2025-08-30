@@ -180,7 +180,7 @@ export default function Chats() {
 
 
   return (
-    <div className="flex flex-col h-[95vh] md:h-screen relative">
+    <div className="flex flex-col h-[94vh] md:h-screen relative">
       <div className="header flex py-2 px-3 md:p-1.5 bg-white items-center justify-between  shadow-md">
         <div className=" user flex">
           <Link to="/conversation" >
