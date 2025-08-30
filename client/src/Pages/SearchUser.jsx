@@ -50,6 +50,7 @@ export default function SearchUser() {
     else {
       if (selectedUsers.length < 2) {
         toast.error("Select Atleast Two Members")
+        setLoading(false)
         return
       }
       data = {
@@ -96,14 +97,14 @@ export default function SearchUser() {
 
       <div className="button p-3 flex  justify-center">
         <button
-          className={`${!isGroup ? "primary-bg text-white " : "bg-gray-200"} flex justify-center items-center gap-2 py-3 w-40 rounded-l-full cursor-pointer `}
+          className={`${!isGroup ? "primary-bg text-white " : "bg-gray-200"} flex justify-center items-center gap-2 py-3 w-40 rounded-l-full cursor-pointer shadow-lg `}
           onClick={() => setIsGroup(false)}
         >
           <span>Friend</span>
           <HiUserAdd />
         </button>
         <button
-          className={`${isGroup ? "primary-bg text-white " : "bg-gray-300"} flex justify-center items-center gap-2 py-3 w-40 rounded-r-full cursor-pointer `}
+          className={`${isGroup ? "primary-bg text-white " : "bg-gray-300"} flex justify-center items-center gap-2 py-3 w-40 rounded-r-full cursor-pointer shadow-lg `}
           onClick={() => setIsGroup(true)}
         >
           <span>Group</span>
@@ -114,14 +115,14 @@ export default function SearchUser() {
       <div className="box flex flex-col items-center gap-4 ">
 
         {isGroup && <>
-          <div className="grid">
-            <label className='text-sm ' htmlFor="name">Group Name  </label>
+          <div className="grid mt-4">
+            <label className='text-sm m-1' htmlFor="name">Group Name  </label>
             <input
               type="text"
               onChange={(e) => setName(e.target.value)}
               value={name}
               placeholder='Enter The Group Name '
-              className=' border border-gray-400 w-80 h-12 px-2.5 rounded-lg shadow-lg md:w-96 md:h-10 md:text-sm'
+              className=' border border-gray-300 w-80 h-12 px-4 rounded-full shadow-lg md:w-96 md:h-11 md:text-sm focus:ring-1 focus:ring-green-500 outline-none transition-all ease-out duration-100 '
             />
           </div>
 
@@ -137,30 +138,26 @@ export default function SearchUser() {
           <button
             onClick={createConversation}
             disabled={!name || loading}
-            className="px-6 py-3 primary-bg text-white rounded-full cursor-pointer disabled:opacity-90">
+            className="px-6 py-3 primary-bg text-white rounded-full cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
             Create Group
           </button>
         </>
         }
 
-        <div className="search flex justify-center ">
-          <div className="input">
-            <input
-              type="email"
-              onChange={(e) => setSearch(e.target.value)}
-              value={search}
-              placeholder='Enter The Email '
-              className='border border-gray-400 w-72 h-12 px-2.5 rounded-l-lg shadow-lg md:w-96 md:h-10 md:text-sm'
-            />
-          </div>
-          <div className="button">
-            <button disabled={!search || loading} onClick={searchUser} className="p-3 md:p-2 primary-bg text-white text-2xl rounded-r-lg  cursor-pointer disabled:opacity-90 ">
-              <LuUserSearch />
-            </button>
-          </div>
+        <div className="search flex justify-center items-center w-80 h-12 md:w-96 md:h-11 border border-gray-300 rounded-full my-5 focus-within:ring-1 focus-within:ring-green-500 shadow-lg transition-all ease-out duration-100">
+          <input
+            type="email"
+            onChange={(e) => setSearch(e.target.value)}
+            value={search}
+            placeholder='Enter The Email '
+            className=' px-4 md:text-sm outline-none flex-1'
+          />
+          <button disabled={!search || loading} onClick={searchUser} className="p-3 md:p-2 primary-bg text-white text-2xl rounded-full cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed ">
+            <LuUserSearch />
+          </button>
         </div>
 
-        <div className="result my-5 flex justify-center">
+        <div className="result my- flex justify-center">
           {userData && <User {...userData} createConversation={createConversation} isGroup={isGroup} selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} setSearch={setSearch} />}
         </div>
       </div>

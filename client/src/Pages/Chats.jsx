@@ -181,7 +181,7 @@ export default function Chats() {
 
   return (
     <div className="flex flex-col h-screen relative">
-      <div className="header flex py-2 px-3 md:p-1.5 bg-gray-100 items-center justify-between ">
+      <div className="header flex py-2 px-3 md:p-1.5 bg-white items-center justify-between  shadow-md">
         <div className=" user flex">
           <Link to="/conversation" >
             <div className="button text-xl h-11 w-11 flex-shrink-0 flex justify-center items-center  bg-gray-200 rounded-full shadow-xl md:hidden">
@@ -198,13 +198,13 @@ export default function Chats() {
 
                 {isGroup && <div className="flex items-center gap-1 overflow-scroll hide-scrollbar">
                   {(onlineGroupUsers.length <= 0)
-                    ? <p className="text-xs "> NO Active Users </p>
+                    ? <p className="text-xs md:text-[11px] "> NO Active User </p>
                     : onlineGroupUsers?.map(user => < OnlineBadge key={user.id} {...user} />)
                   }
                 </div>}
 
                 {!isGroup && <>
-                  {/* <p className=" text-[11px]">{email}</p> */}
+
                   <p className={`${isOnline ? 'text-green-600' : 'text-gray-700'} text-[10px] font-semibold`}>
                     {isOnline ? 'Online' : 'Offline'}
                   </p>
@@ -223,6 +223,10 @@ export default function Chats() {
         </div>
       </div>
 
+
+
+
+
       {showChatInfo && <ChatInformation setShowChatInfo={setShowChatInfo} {...location.state} />}
 
       <div ref={chatRef} className="chats h-full md:h-[83vh] p-2 overflow-scroll hide-scrollbar">
@@ -237,17 +241,28 @@ export default function Chats() {
         {isTyping && <TypingIndicator />}
       </div>
 
-      <div className="chatbox flex justify-between px-2 gap-2 sticky bottom-2 z-40 bg-white left-0">
-        <div className="input flex-grow-1 ">
+
+      <div className="chatbox sticky bottom-3 z-40 left-0 w-full px-3 mt-2">
+        <div className="flex items-center gap-3 bg-white  rounded-3xl shadow-xl pl-4 pr-1 py-1 md:py-0.5 border border-green-800 focus-within:ring-1 focus-within:ring-green-500  transition-all duration-300">
+
           <input
             value={text}
             onChange={handleOnChange}
-            className='border border-gray-300 w-full h-11.5 md:h-10 px-2.5 rounded-lg  md:text-sm' type="text" placeholder='Type Message Here ....' />
-        </div>
-        <div className="button">
-          <button disabled={text?.length === 0 || loading} onClick={sendMessage} className="p-3 md:p-2.5 cursor-pointer primary-bg text-white text-xl rounded-lg disabled:opacity-90 "><BsFillSendFill /></button>
+            type="text"
+            placeholder="Type a message..."
+            className="flex-grow bg-transparent outline-none text-base placeholder-gray-400 "
+          />
+
+          <button
+            disabled={text?.length === 0 || loading}
+            onClick={sendMessage}
+            className="p-3 rounded-full primary-bg active:scale-95 transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <BsFillSendFill className="text-xl text-white" />
+          </button>
         </div>
       </div>
+
     </div>
   )
 }
