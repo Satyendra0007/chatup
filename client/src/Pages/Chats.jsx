@@ -180,7 +180,7 @@ export default function Chats() {
 
 
   return (
-    <div className="flex flex-col h-screen relative">
+    <div className="flex flex-col h-[95vh] md:h-screen relative">
       <div className="header flex py-2 px-3 md:p-1.5 bg-white items-center justify-between  shadow-md">
         <div className=" user flex">
           <Link to="/conversation" >
@@ -223,13 +223,9 @@ export default function Chats() {
         </div>
       </div>
 
-
-
-
-
       {showChatInfo && <ChatInformation setShowChatInfo={setShowChatInfo} {...location.state} />}
 
-      <div ref={chatRef} className="chats h-full md:h-[83vh] p-2 overflow-scroll hide-scrollbar">
+      <div ref={chatRef} className="chats h-full p-2 overflow-scroll hide-scrollbar pb-4">
 
         {chatLoading
           ? <ChatSkeleton />
@@ -242,15 +238,15 @@ export default function Chats() {
       </div>
 
 
-      <div className="chatbox sticky bottom-3 z-40 left-0 w-full px-3 mt-2">
-        <div className="flex items-center gap-3 bg-white  rounded-3xl shadow-xl pl-4 pr-1 py-1 md:py-0.5 border border-green-800 focus-within:ring-1 focus-within:ring-green-500  transition-all duration-300">
+      <div className="chatbox sticky bottom-3 z-40 left-0 w-full px-3">
+        <div className="flex items-center justify-between gap-3 bg-white  rounded-3xl shadow-xl pl-4 pr-1 py-1 md:py-0.5 border border-green-800 focus-within:ring-1 focus-within:ring-green-500  transition-all duration-300">
 
           <input
             value={text}
             onChange={handleOnChange}
             type="text"
             placeholder="Type a message..."
-            className="flex-grow bg-transparent outline-none text-base placeholder-gray-400 "
+            className="flex-grow min-w-0 bg-transparent outline-none text-base placeholder-gray-400 "
           />
 
           <button

@@ -61,7 +61,7 @@ export default function Conversations() {
               })}
           </div>
 
-          <div className="button absolute right-6 bottom-6 z-10 shadow-2xl">
+          <div className="button absolute right-6 bottom-12 z-10 shadow-2xl">
             <Link to="/chatlayout/search">
               <button className='p-3 primary-bg text-white text-3xl rounded-full cursor-pointer'><HiUserAdd /></button>
             </Link>

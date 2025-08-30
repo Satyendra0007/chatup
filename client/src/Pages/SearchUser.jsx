@@ -150,7 +150,7 @@ export default function SearchUser() {
             onChange={(e) => setSearch(e.target.value)}
             value={search}
             placeholder='Enter The Email '
-            className=' px-4 md:text-sm outline-none flex-1'
+            className=' px-4 md:text-sm outline-none flex-grow min-w-0'
           />
           <button disabled={!search || loading} onClick={searchUser} className="p-3 md:p-2 primary-bg text-white text-2xl rounded-full cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed ">
             <LuUserSearch />

@@ -52,7 +52,7 @@ export default function Conversation({
         </div>
         <div className="flex flex-col">
           <h3
-            className={`md:text-xs font-medium capitalize ${isSelected ? "text-gray-900" : "text-gray-800"
+            className={`md:text-sm font-medium capitalize ${isSelected ? "text-gray-900" : "text-gray-800"
               }`}
           >
             {name}
