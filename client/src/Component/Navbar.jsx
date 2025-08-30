@@ -1,8 +1,6 @@
 import React from 'react'
 import { useClerk, useUser, UserButton } from '@clerk/clerk-react'
 import { IoChatbubbleSharp } from "react-icons/io5";
-import logo from "../assets/transparent-logo.svg"
-
 
 export default function Navbar() {
   const { openSignIn, openSignUp } = useClerk();
