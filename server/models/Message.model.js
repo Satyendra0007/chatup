@@ -1,18 +1,21 @@
 const mongoose = require("mongoose")
+const { decryptMessage, encryptMessage } = require("../utils/crypto");
 
 const messageSchema = new mongoose.Schema({
   conversationId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Conversation",
-    require: true
+    required: true
   },
   senderId: {
     type: String,
-    require: true
+    required: true
   },
   text: {
     type: String,
-    require: true
+    required: true,
+    set: (plainText) => encryptMessage(plainText),   // encrypt before save
+    get: (cipherText) => decryptMessage(cipherText)  // decrypt when reading
   },
   seenBy: {
     type: [String],
@@ -24,9 +27,10 @@ const messageSchema = new mongoose.Schema({
   },
 },
   {
-    timestamps: true
+    timestamps: true,
+    toJSON: { getters: true },
+    toObject: { getters: true }
   }
-
 )
 
 const Message = mongoose.models.Message || mongoose.model("Message", messageSchema)

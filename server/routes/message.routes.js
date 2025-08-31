@@ -18,7 +18,7 @@ router.route("/send").post(
     .isMongoId().withMessage("conversatio id must be a mongodb id"),
   body("text")
     .notEmpty().withMessage("text shuld not be empty")
-    .isString().withMessage("text must be a string")
+    // .isString().withMessage("text must be a string")
     .trim(),
   messageController.sendMessage
 )

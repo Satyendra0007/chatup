@@ -3,7 +3,6 @@ import { BsFillSendFill } from "react-icons/bs";
 import Chat from "@/Component/Chat";
 import { Link, useParams, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
 import { useConversationsStore } from "@/Context/ConversationsStore";
 import userimage from '../assets/user.png'
 import socket from "@/utils/socket";
@@ -239,7 +238,7 @@ export default function Chats() {
 
 
       <div className="chatbox sticky bottom-3 z-40 left-0 w-full px-3">
-        <div className="flex items-center justify-between gap-3 bg-white  rounded-3xl shadow-xl pl-4 pr-1 py-1 md:py-0.5 border border-green-800 focus-within:ring-1 focus-within:ring-green-500  transition-all duration-300">
+        <div className="flex items-center justify-between gap-3 bg-white  rounded-3xl shadow-xl pl-4 pr-1 py-1 md:py-0.5 border border-green-400 focus-within:ring-1 focus-within:ring-green-500  transition-all duration-300">
 
           <input
             value={text}

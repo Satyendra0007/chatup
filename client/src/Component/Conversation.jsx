@@ -37,7 +37,7 @@ export default function Conversation({
   return (
     <div
       onClick={() => handleOnClick(conversationId)}
-      className={`flex items-center justify-between w-full md:w-80 px-3 py-2 rounded-lg cursor-pointer transition-all duration-200 ${isSelected ? "bg-gray-200" : "hover:bg-gray-50"}`}
+      className={`flex items-center justify-between w-full md:w-80 px-3 py-2.5 md:py-2 rounded-lg cursor-pointer transition-all duration-200 border-b-1 border-gray-300 ${isSelected ? "bg-gray-200" : "hover:bg-gray-50"}`}
     >
       <div className="flex items-center gap-3">
         <div className="relative">

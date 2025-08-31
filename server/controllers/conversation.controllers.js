@@ -3,6 +3,7 @@ const { matchedData, validationResult } = require("express-validator")
 const { getUserById } = require("../utils/clerk")
 const { getAuth } = require('@clerk/express');
 const Message = require("../models/Message.model");
+const { decryptMessage } = require("../utils/crypto");
 
 const isConversationExists = async (members) => {
   if (members.length !== 2) return false;
@@ -72,9 +73,25 @@ module.exports.getConversations = async (req, res) => {
 
     const response = await Promise.all(conversations.map(async (conversation) => {
       const { _id, isGroup, members, name, lastMessage, groupAdmin, unreadBy } = conversation;
+      const decryptedLastMessage = lastMessage
+        ? { ...lastMessage, text: decryptMessage(lastMessage.text) }
+        : null;
       if (!isGroup) {
         const receiver = members.find(id => id !== userId)
-        const { id, firstName, imageUrl, emailAddresses } = await getUserById(receiver);
+        const user = await getUserById(receiver);
+        // if (!user) {
+        //   return {
+        //     conversationId: _id,
+        //     isGroup,
+        //     receiverId: null,
+        //     name: "undefined",
+        //     imageUrl: null,
+        //     email: null,
+        //     lastMessage: decryptedLastMessage,
+        //     unreadBy
+        //   }
+        // }
+        const { id, firstName, imageUrl, emailAddresses } = user;
         return {
           conversationId: _id,
           isGroup,
@@ -82,14 +99,23 @@ module.exports.getConversations = async (req, res) => {
           name: firstName,
           imageUrl,
           email: emailAddresses[0].emailAddress,
-          lastMessage,
+          lastMessage: decryptedLastMessage,
           unreadBy
 
         }
       }
       //for group chats
       const membersDetails = await Promise.all(members.map(async (member) => {
-        const { id, firstName, imageUrl, emailAddresses } = await getUserById(member);
+        const user = await getUserById(member);
+        // if (!user) {
+        //   return {
+        //     id: null,
+        //     firstName: "",
+        //     imageUrl: null,
+        //     email: null
+        //   }
+        // }
+        const { id, firstName, imageUrl, emailAddresses } = user;
         return {
           id: id,
           firstName,
@@ -103,7 +129,7 @@ module.exports.getConversations = async (req, res) => {
         name,
         groupAdmin,
         members: membersDetails,
-        lastMessage,
+        lastMessage: decryptedLastMessage,
         unreadBy
       }
     }))

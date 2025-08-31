@@ -25,7 +25,7 @@ export default function Chat({ text, time, senderId, seenBy, receiverId, members
     <>
       {(isUser ?
         <div className='flex justify-end'>
-          <div className="message primary-bg text-white max-w-60 min-w-24 md:min-w-32 rounded-md rounded-tr-none pt-0.5 md:pt-1 mb-1  shadow-lg ">
+          <div className="message primary-bg text-white max-w-60 min-w-24 md:min-w-32 rounded-md rounded-tr-none pt-0.5 md:pt-1 mb-1.5  shadow-lg ">
             <div className="text pt-0.5 text-xs md:text-[10px] px-2">{text}</div>
             <div className="flex justify-end items-center p-0.5 gap-1">
               <div className="time text-[8px]  md:text-[7px] ">{convertToIST(time)}</div>
