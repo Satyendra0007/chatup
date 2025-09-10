@@ -17,6 +17,9 @@ const messageSchema = new mongoose.Schema({
     set: (plainText) => encryptMessage(plainText),   // encrypt before save
     get: (cipherText) => decryptMessage(cipherText)  // decrypt when reading
   },
+  reaction: {
+    type: String
+  },
   seenBy: {
     type: [String],
     default: []

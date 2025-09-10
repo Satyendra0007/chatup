@@ -6,8 +6,8 @@ const authenticateUser = require("../middleware/authenticateUser");
 router.route("/get/:conversationId").get(
   authenticateUser,
   param("conversationId")
-    .notEmpty().withMessage("conversatio id should not be empty")
-    .isMongoId().withMessage("conversatio id must be a mongodb id"),
+    .notEmpty().withMessage("conversation id should not be empty")
+    .isMongoId().withMessage("conversation id must be a mongodb id"),
   messageController.getMessages
 )
 
@@ -17,10 +17,40 @@ router.route("/send").post(
     .notEmpty().withMessage("conversation id should not be empty")
     .isMongoId().withMessage("conversatio id must be a mongodb id"),
   body("text")
-    .notEmpty().withMessage("text shuld not be empty")
-    // .isString().withMessage("text must be a string")
+    .notEmpty().withMessage("text should not be empty")
+    .isString().withMessage("text must be a string")
     .trim(),
   messageController.sendMessage
+)
+
+router.route("/react/:messageId").put(
+  authenticateUser,
+  param("messageId")
+    .notEmpty().withMessage("message Id can't be Empty ")
+    .isMongoId().withMessage("message Id must be a mongodb id"),
+  body("reaction")
+    .notEmpty().withMessage("reaction should not be empty")
+    .isString().withMessage("reaction  must be a string"),
+  messageController.addReaction
+)
+
+router.route("/delete/:messageId").delete(
+  authenticateUser,
+  param("messageId")
+    .notEmpty().withMessage("Message Id can't be Empty ")
+    .isMongoId().withMessage("Message Id must be a mongodb id"),
+  messageController.deleteMessage
+)
+
+router.route("/edit/:messageId").put(
+  authenticateUser,
+  param("messageId")
+    .notEmpty().withMessage("Message Id con't be Empty ")
+    .isMongoId().withMessage("Message Id must be a mongodb id"),
+  body("editedText")
+    .notEmpty().withMessage("text can't be empty ")
+    .isString().withMessage("text should be string "),
+  messageController.editMessage
 )
 
 

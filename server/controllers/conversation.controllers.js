@@ -38,11 +38,6 @@ module.exports.createConversation = async (req, res) => {
 module.exports.getConversations = async (req, res) => {
   try {
     const { userId } = getAuth(req);
-    // const conversations = await Conversation.find({
-    //   members: { $in: [userId] }
-    // }).populate("lastMessage").sort({ updatedAt: -1 });
-
-
     const conversations = await Conversation.aggregate([
       {
         $match: {
@@ -69,8 +64,6 @@ module.exports.getConversations = async (req, res) => {
         }
       }
     ]);
-
-
     const response = await Promise.all(conversations.map(async (conversation) => {
       const { _id, isGroup, members, name, lastMessage, groupAdmin, unreadBy } = conversation;
       const decryptedLastMessage = lastMessage
@@ -79,18 +72,6 @@ module.exports.getConversations = async (req, res) => {
       if (!isGroup) {
         const receiver = members.find(id => id !== userId)
         const user = await getUserById(receiver);
-        // if (!user) {
-        //   return {
-        //     conversationId: _id,
-        //     isGroup,
-        //     receiverId: null,
-        //     name: "undefined",
-        //     imageUrl: null,
-        //     email: null,
-        //     lastMessage: decryptedLastMessage,
-        //     unreadBy
-        //   }
-        // }
         const { id, firstName, imageUrl, emailAddresses } = user;
         return {
           conversationId: _id,
@@ -101,20 +82,11 @@ module.exports.getConversations = async (req, res) => {
           email: emailAddresses[0].emailAddress,
           lastMessage: decryptedLastMessage,
           unreadBy
-
         }
       }
       //for group chats
       const membersDetails = await Promise.all(members.map(async (member) => {
         const user = await getUserById(member);
-        // if (!user) {
-        //   return {
-        //     id: null,
-        //     firstName: "",
-        //     imageUrl: null,
-        //     email: null
-        //   }
-        // }
         const { id, firstName, imageUrl, emailAddresses } = user;
         return {
           id: id,

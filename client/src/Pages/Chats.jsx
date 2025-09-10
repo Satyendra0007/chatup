@@ -14,6 +14,7 @@ import { GoInfo } from "react-icons/go";
 import ChatInformation from "@/Component/ChatInformation";
 import { useAxiosClient } from "@/utils/useAxiosClient";
 import ChatSkeleton from "@/spinners/ChatSkeleton";
+import OptionBar from "@/Component/OptionBar";
 
 export default function Chats() {
   const { convid } = useParams();
@@ -24,6 +25,7 @@ export default function Chats() {
   const [chatLoading, setChatLoading] = useState(false);
   const [text, setText] = useState("")
   const [showChatInfo, setShowChatInfo] = useState(false);
+  const [selectedChat, setSelectedChat] = useState(null)
   const { name, imageUrl, email, receiverId, isGroup, members, groupAdmin } = location.state || {};
   const { fetchConversations, onlineUsers, markAsRead } = useConversationsStore()
   const chatRef = useRef(null);
@@ -97,6 +99,33 @@ export default function Chats() {
     setLoading(false)
   }
 
+  const addReaction = async (id, reaction) => {
+    setMessages(prev => prev.map(message => message._id === id ? { ...message, reaction: reaction } : message))
+    try {
+      const { data } = await axiosClient.put(`${import.meta.env.VITE_SERVER_URL}api/message/react/${id}`, {
+        reaction
+      }, { withCredentials: true })
+      setSelectedChat(null)
+      socket.emit("message-reaction", data.updatedMessage)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+
+  const deleteMessage = async (id) => {
+    try {
+      const { data } = await axiosClient.delete(`${import.meta.env.VITE_SERVER_URL}api/message/delete/${id}`, { withCredentials: true });
+      setMessages(prev => prev.filter(message => message._id !== id))
+      socket.emit("delete-message", data.message);
+      setSelectedChat(null)
+      toast.success("message deleted ")
+    } catch (error) {
+      console.log(error)
+      toast.error("message not deleted")
+    }
+  }
+
   useEffect(() => {
     fetchMessages();
     socket.emit('seen-message', { conversationId: convid, userId: user?.id })
@@ -151,17 +180,32 @@ export default function Chats() {
       }
     }
 
+    const updateReaction = (payload) => {
+      if (payload?.conversationId === convid && payload?.senderId !== user?.id) {
+        setMessages(prev => prev.map(message => message._id === payload?._id ? { ...message, reaction: payload.reaction } : message))
+      }
+    }
+
+    const handleDelete = (payload) => {
+      if (payload?.conversationId === convid && payload?.senderId !== user?.id) {
+        setMessages(prev => prev.filter(message => message._id !== payload._id))
+      }
+    }
+
     socket.on('recieve-message', handleReceive);
     socket.on('typing', handleTyping)
     socket.on('stop-typing', handleStopTyping)
     socket.on('seen-message', handleSeen)
-
+    socket.on('update-reaction', updateReaction)
+    socket.on('delete-message', handleDelete)
 
     return () => {
       socket.off('recieve-message', handleReceive);
       socket.off('typing', handleTyping)
       socket.off('stop-typing', handleStopTyping)
       socket.off('seen-message', handleSeen)
+      socket.off('update-reaction', updateReaction)
+      socket.off('delete-message', handleDelete)
     };
   }, [convid]);
 
@@ -175,6 +219,19 @@ export default function Chats() {
     }
     markAsRead(convid);
   }, [messages, isTyping]);
+
+
+  useEffect(() => {
+    const handleCloseMenu = (e) => {
+      if (!e.target.closest(".option-bar") && !e.target.closest(".chat-message")) {
+        setSelectedChat(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleCloseMenu);
+    return () => document.removeEventListener("mousedown", handleCloseMenu);
+  }, []);
+
 
 
 
@@ -224,18 +281,29 @@ export default function Chats() {
 
       {showChatInfo && <ChatInformation setShowChatInfo={setShowChatInfo} {...location.state} />}
 
-      <div ref={chatRef} className="chats h-full p-2 overflow-scroll hide-scrollbar pb-4">
+      {selectedChat?.isUserMessage && <div className="option-bar absolute top-0 right-0 w-full  px-3">
+        <OptionBar deleteMessage={deleteMessage} id={selectedChat?.id} />
+      </div>}
+
+      <div ref={chatRef} className="chats h-full p-2 overflow-scroll hide-scrollbar pb-4 space-y-1.5">
 
         {chatLoading
           ? <ChatSkeleton />
           : (messages?.length === 0)
             ? <div className="text-center my-3"> No Messages </div>
-            : messages?.map((message, index) => {
-              return <Chat key={index} {...message} receiverId={receiverId} members={members} isGroup={isGroup} groupAdmin={groupAdmin} />
+            : messages?.map((message) => {
+              return <Chat key={message._id} {...message}
+                receiverId={receiverId}
+                members={members}
+                isGroup={isGroup}
+                groupAdmin={groupAdmin}
+                selectedChat={selectedChat}
+                setSelectedChat={setSelectedChat}
+                addReaction={addReaction}
+                deleteMessage={deleteMessage} />
             })}
         {isTyping && <TypingIndicator />}
       </div>
-
 
       <div className="chatbox sticky bottom-3 z-40 left-0 w-full px-3">
         <div className="flex items-center justify-between gap-3 bg-white  rounded-3xl shadow-xl pl-4 pr-1 py-1 md:py-0.5 border border-green-400 focus-within:ring-1 focus-within:ring-green-500  transition-all duration-300">

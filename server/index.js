@@ -15,7 +15,7 @@ const server = createServer(app);
 const io = new Server(server, {
   cors: {
     origin: process.env.FRONTEND_URL,
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
   }
 })
@@ -23,6 +23,7 @@ const io = new Server(server, {
 app.use(clerkMiddleware());
 app.use(cors({
   origin: process.env.FRONTEND_URL,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
 
@@ -70,6 +71,14 @@ io.on('connection', (socket) => {
 
   socket.on('seen-message', (payload) => {
     io.to(payload.conversationId).emit('seen-message', payload)
+  })
+
+  socket.on("message-reaction", (payload) => {
+    io.to(payload.conversationId).emit("update-reaction", payload)
+  })
+
+  socket.on("delete-message", (payload) => {
+    io.to(payload.conversationId).emit("delete-message", payload)
   })
 
   socket.on('disconnect', () => {

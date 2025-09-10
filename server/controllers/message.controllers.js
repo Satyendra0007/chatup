@@ -1,8 +1,7 @@
 const Message = require("../models/Message.model");
 const Conversation = require("../models/Conversation.model")
 const { validationResult, matchedData } = require("express-validator")
-const { getAuth, requireAuth } = require('@clerk/express');
-const { decryptMessage } = require("../utils/crypto")
+const { getAuth } = require('@clerk/express');
 
 module.exports.getMessages = async (req, res) => {
   const result = validationResult(req)
@@ -12,7 +11,6 @@ module.exports.getMessages = async (req, res) => {
   try {
     const { conversationId } = matchedData(req)
     const messages = await Message.find({ conversationId })
-    // const messages = rowMessages.map(message => ({ ...message, text: decryptMessage(message.text) }))
     res.status(200).json(messages)
   } catch (error) {
     console.log(error)
@@ -40,5 +38,51 @@ module.exports.sendMessage = async (req, res) => {
   catch (error) {
     console.log(error)
     res.status(500).json({ message: "Inatenal Server Error " })
+  }
+}
+
+module.exports.addReaction = async (req, res) => {
+  const result = validationResult(req)
+  if (!result.isEmpty()) {
+    return res.status(400).json({ message: result.array });
+  }
+  try {
+    const { messageId, reaction } = matchedData(req)
+    const updatedMessage = await Message.findByIdAndUpdate(messageId, { reaction }, { new: true })
+    res.status(200).json({ message: "reacted ! ", updatedMessage })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: "Internal Server Error " })
+  }
+}
+
+module.exports.deleteMessage = async (req, res) => {
+  const result = validationResult(req)
+  if (!result.isEmpty()) {
+    return res.status(400).json({ message: result.array() })
+  }
+  try {
+    const { messageId } = matchedData(req)
+    const message = await Message.findOne({ _id: messageId })
+    await Message.deleteOne({ _id: messageId })
+    res.status(200).json({ message })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: "Internal Server Error " })
+  }
+}
+
+module.exports.editMessage = async (req, res) => {
+  const result = validationResult(req)
+  if (!result.isEmpty()) {
+    return res.status(400).json({ message: result.array() })
+  }
+  try {
+    const { messageId, editedText } = matchedData(req)
+    const message = await Message.updateOne({ _id: messageId }, { $set: { text: editedText } })
+    res.status(200).json({ message: "message edited" });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: "Internal Server Error" })
   }
 }
