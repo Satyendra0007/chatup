@@ -3,7 +3,11 @@ const CryptoJS = require("crypto-js")
 module.exports.decryptMessage = (encrypted) => {
   try {
     const bytes = CryptoJS.AES.decrypt(encrypted, process.env.SECRET_KEY)
-    return bytes.toString(CryptoJS.enc.Utf8)
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8)
+    if (!decrypted) {
+      return encrypted;
+    }
+    return decrypted
   } catch (error) {
     return encrypted
   }

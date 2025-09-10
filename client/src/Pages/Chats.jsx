@@ -80,6 +80,8 @@ export default function Chats() {
 
   const sendMessage = async () => {
     setLoading(true)
+    const dummyId = new Date().getTime()
+    setMessages(prev => [...prev, { text, _id: dummyId, senderId: user?.id, time: dummyId }])
     try {
       const { data } = await axiosClient.post(`${import.meta.env.VITE_SERVER_URL}api/message/send`, {
         conversationId: convid,
@@ -90,7 +92,7 @@ export default function Chats() {
       socket.emit('send-message', data)
       socket.emit("stop-typing", convid);
       typing = false;
-      setMessages((prev) => [...prev, data?.newMessage]);
+      setMessages(prev => prev.map(message => message._id === dummyId ? data?.newMessage : message))
       fetchConversations();
       setText("")
     } catch (error) {
@@ -101,11 +103,11 @@ export default function Chats() {
 
   const addReaction = async (id, reaction) => {
     setMessages(prev => prev.map(message => message._id === id ? { ...message, reaction: reaction } : message))
+    setSelectedChat(null)
     try {
       const { data } = await axiosClient.put(`${import.meta.env.VITE_SERVER_URL}api/message/react/${id}`, {
         reaction
       }, { withCredentials: true })
-      setSelectedChat(null)
       socket.emit("message-reaction", data.updatedMessage)
     } catch (error) {
       console.log(error)
@@ -115,10 +117,10 @@ export default function Chats() {
 
   const deleteMessage = async (id) => {
     try {
-      const { data } = await axiosClient.delete(`${import.meta.env.VITE_SERVER_URL}api/message/delete/${id}`, { withCredentials: true });
       setMessages(prev => prev.filter(message => message._id !== id))
-      socket.emit("delete-message", data.message);
       setSelectedChat(null)
+      const { data } = await axiosClient.delete(`${import.meta.env.VITE_SERVER_URL}api/message/delete/${id}`, { withCredentials: true });
+      socket.emit("delete-message", data.message);
       toast.success("message deleted ")
     } catch (error) {
       console.log(error)

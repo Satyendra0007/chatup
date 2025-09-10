@@ -38,7 +38,7 @@ export default function Chat({ _id, text, time, senderId, seenBy, receiverId, re
             <div className={`flex p-0.5 ${reaction ? "justify-between" : "justify-end"}`}>
               {reaction && <div className="reaction p-[1px] bg-white rounded-full text-xs "> {reaction} </div>}
               <div className="info flex gap-1  items-end">
-                <div className="time text-[8px]  md:text-[7px] ">{convertToIST(time)}</div>
+                <div className="time text-[8px] md:text-[7px] ">{convertToIST(time) || ""}</div>
                 <div className="tick text-xs"> {isSeen ? <PiSealCheckFill /> : <PiSealCheck />}</div>
               </div>
             </div>
