@@ -294,9 +294,9 @@ export default function Chats() {
         <OptionBar deleteMessage={deleteMessage} id={selectedChat?.id} setShowSeenBy={setShowSeenBy} />
       </div>
 
-      {/* ---------------Appears when (selectedChat && showSeenBy) ---------------- */}
-      <div className={`seebBy absolute z-50 left-0 w-full ${(selectedChat && showSeenBy) ? "bottom-0" : "-bottom-[100%]"} transition-all duration-500 ease-in-out `}>
-        <MessageSeenByUser seenBy={selectedChat?.seenBy} members={members} />
+      {/* ---------------Appears when (isGroup && selectedChat && showSeenBy) ---------------- */}
+      <div className={`seebBy absolute z-50 left-0 w-full ${(selectedChat && showSeenBy && isGroup) ? "bottom-0" : "-bottom-[100%]"} transition-all duration-500 ease-in-out `}>
+        {isGroup && <MessageSeenByUser seenBy={selectedChat?.seenBy} members={members} />}
       </div>
 
       {/* {showChatInfo && <ChatInformation setShowChatInfo={setShowChatInfo} {...location.state} />} */}
