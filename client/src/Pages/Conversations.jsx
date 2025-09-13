@@ -46,7 +46,7 @@ export default function Conversations() {
         <div className='h-[94vh] md:h-screen w-full md:w-80 box-border md:border-r-2 overflow-scroll hide-scrollbar '>
           <div className="heading sticky top-0 left-0 z-40 bg-white  shadow-xs py-1">
             <Navbar />
-            <h1 className='px-3 text-2xl font-semibold mb-4 md:mb-0 md:py-4'>Conversations </h1>
+            <h1 className='px-3 text-lg md:text-xl mb-4 md:mb-0 md:py-4'>Conversations </h1>
           </div>
 
           <div className="conversations p-1 space-y-1 flex flex-col items-center ">

@@ -9,14 +9,14 @@ import Reactions from "./Reactions";
 export default function Chat({ _id, text, time, senderId, seenBy, receiverId, reaction, members, isGroup, groupAdmin, selectedChat, setSelectedChat, addReaction }) {
   const { user } = useUser();
   const isUser = (user.id === senderId);
-  const isSeen = seenBy?.includes(receiverId)
+  const isSeen = seenBy?.includes(receiverId) || seenBy?.length === (members?.length - 1)
   const senderInfo = members?.find(member => member.id === senderId)
   const isThisChatSelected = selectedChat?.id === _id
   const reactionMenu = useRef(null)
 
   const handleLongPress = useLongPress(() => {
     const isUserMessage = senderId === user.id;
-    setSelectedChat({ id: _id, isUserMessage })
+    setSelectedChat({ id: _id, isUserMessage, seenBy })
   })
 
   const convertToIST = (milliseconds) => {

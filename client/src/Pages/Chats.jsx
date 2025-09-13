@@ -15,6 +15,7 @@ import ChatInformation from "@/Component/ChatInformation";
 import { useAxiosClient } from "@/utils/useAxiosClient";
 import ChatSkeleton from "@/spinners/ChatSkeleton";
 import OptionBar from "@/Component/OptionBar";
+import MessageSeenByUser from "@/Component/MessageSeenByUser";
 
 export default function Chats() {
   const { convid } = useParams();
@@ -25,8 +26,9 @@ export default function Chats() {
   const [chatLoading, setChatLoading] = useState(false);
   const [text, setText] = useState("")
   const [showChatInfo, setShowChatInfo] = useState(false);
+  const [showSeenBy, setShowSeenBy] = useState(false)
   const [selectedChat, setSelectedChat] = useState(null)
-  const { name, imageUrl, email, receiverId, isGroup, members, groupAdmin } = location.state || {};
+  const { name, imageUrl, receiverId, isGroup, members, groupAdmin } = location.state || {};
   const { fetchConversations, onlineUsers, markAsRead } = useConversationsStore()
   const chatRef = useRef(null);
   const lastTypingTimeRef = useRef(null)
@@ -82,10 +84,12 @@ export default function Chats() {
     setLoading(true)
     const dummyId = new Date().getTime()
     setMessages(prev => [...prev, { text, _id: dummyId, senderId: user?.id, time: dummyId }])
+    const dummyText = text;
+    setText("")
     try {
       const { data } = await axiosClient.post(`${import.meta.env.VITE_SERVER_URL}api/message/send`, {
         conversationId: convid,
-        text
+        text: dummyText
       }, {
         withCredentials: true,
       })
@@ -94,7 +98,6 @@ export default function Chats() {
       typing = false;
       setMessages(prev => prev.map(message => message._id === dummyId ? data?.newMessage : message))
       fetchConversations();
-      setText("")
     } catch (error) {
       console.log(error)
     }
@@ -183,7 +186,7 @@ export default function Chats() {
     }
 
     const updateReaction = (payload) => {
-      if (payload?.conversationId === convid && payload?.senderId !== user?.id) {
+      if (payload?.conversationId === convid) {
         setMessages(prev => prev.map(message => message._id === payload?._id ? { ...message, reaction: payload.reaction } : message))
       }
     }
@@ -227,6 +230,7 @@ export default function Chats() {
     const handleCloseMenu = (e) => {
       if (!e.target.closest(".option-bar") && !e.target.closest(".chat-message")) {
         setSelectedChat(null);
+        setShowSeenBy(false)
       }
     };
 
@@ -235,10 +239,8 @@ export default function Chats() {
   }, []);
 
 
-
-
   return (
-    <div className="flex flex-col h-[94vh] md:h-screen relative">
+    <div className="flex flex-col h-[94vh] md:h-screen relative overflow-hidden">
       <div className="header flex py-2 px-3 md:p-1.5 bg-white items-center justify-between  shadow-md">
         <div className=" user flex">
           <Link to="/conversation" >
@@ -281,11 +283,32 @@ export default function Chats() {
         </div>
       </div>
 
-      {showChatInfo && <ChatInformation setShowChatInfo={setShowChatInfo} {...location.state} />}
+      {/* ---------------Appears when (showChatInfo) ---------------- */}
+      <div className={`chatinfo w-full h-full absolute top-0 bottom-0 z-50 ${showChatInfo ? "left-0" : "-left-[100%]"} transition-all duration-500 ease-in-out `}>
+        <ChatInformation setShowChatInfo={setShowChatInfo} {...location.state} />
+      </div>
 
-      {selectedChat?.isUserMessage && <div className="option-bar absolute top-0 right-0 w-full  px-3">
-        <OptionBar deleteMessage={deleteMessage} id={selectedChat?.id} />
-      </div>}
+      {/* ---------------Appears when (selectedChat?.isUserMessage) ---------------- */}
+
+      <div className={`option-bar absolute right-0 w-full  px-3 ${(selectedChat?.isUserMessage) ? "top-1" : "-top-[100%]"} transition-all duration-500 ease-in-out`}>
+        <OptionBar deleteMessage={deleteMessage} id={selectedChat?.id} setShowSeenBy={setShowSeenBy} />
+      </div>
+
+      {/* ---------------Appears when (selectedChat && showSeenBy) ---------------- */}
+      <div className={`seebBy absolute z-50 left-0 w-full ${(selectedChat && showSeenBy) ? "bottom-0" : "-bottom-[100%]"} transition-all duration-500 ease-in-out `}>
+        <MessageSeenByUser seenBy={selectedChat?.seenBy} members={members} />
+      </div>
+
+      {/* {showChatInfo && <ChatInformation setShowChatInfo={setShowChatInfo} {...location.state} />} */}
+
+      {/* {selectedChat?.isUserMessage && <div className="option-bar absolute top-0 right-0 w-full  px-3">
+        <OptionBar deleteMessage={deleteMessage} id={selectedChat?.id} setShowSeenBy={setShowSeenBy} />
+      </div>} */}
+
+      {/* {(selectedChat && showSeenBy) && <div className="seebBy absolute bottom-0 z-50 left-0 w-full ">
+        <MessageSeenByUser seenBy={selectedChat?.seenBy} members={members} />
+      </div>} */}
+
 
       <div ref={chatRef} className="chats h-full p-2 overflow-scroll hide-scrollbar pb-4 space-y-1.5">
 

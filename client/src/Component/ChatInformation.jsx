@@ -7,7 +7,7 @@ import { HiUserAdd } from "react-icons/hi";
 export default function ChatInformation({ setShowChatInfo, name, imageUrl, email, receiverId, isGroup, members, groupAdmin }) {
   const { user } = useUser();
   return (
-    <div className='absolute top-0 left-0 w-full z-50 bg-white bottom-0'>
+    <div className=' w-full h-full bg-white '>
       <div className="close flex justify-end p-2 ">
         <button
           className="p-2 rounded-full primary-bg text-white text-lg"
