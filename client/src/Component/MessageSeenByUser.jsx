@@ -7,9 +7,9 @@ export default function MessageSeenByUser({ seenBy, members }) {
   const remainingMembers = members.filter(member => !seenBy?.includes(member.id) && member.id !== user.id)
 
   return (
-    <div className='py-8 rounded-t-4xl bg-white space-y-4  border-t border-t-gray-500'>
+    <div className='py-8 rounded-t-4xl bg-black/5 backdrop-blur-xs space-y-4  border-t border-t-gray-300'>
       <div className="seen-users">
-        <p className='font-semibold text-sm px-4 '>Seen By Users </p>
+        <p className='text-green-700 text-sm px-4 '>Seen By Users ({seenByMembers.length}) </p>
         <div className="list flex flex-col justify-center items-center md:items-start gap-2 p-2 md:p-4">
           {seenByMembers.length > 0
             ? seenByMembers?.map(member => {
@@ -28,7 +28,7 @@ export default function MessageSeenByUser({ seenBy, members }) {
         </div>
       </div>
       <div className="remaininguser">
-        <p className='font-semibold text-sm px-4 '>Remaining users </p>
+        <p className='text-green-700 text-sm px-4 '>Remaining users ({remainingMembers.length})</p>
         <div className="list flex flex-col justify-center items-center md:items-start gap-2 p-2 md:p-4">
           {remainingMembers.length > 0
             ? remainingMembers?.map(member => {
@@ -46,7 +46,6 @@ export default function MessageSeenByUser({ seenBy, members }) {
           }
         </div>
       </div>
-
     </div>
   )
 }

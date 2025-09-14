@@ -291,24 +291,13 @@ export default function Chats() {
       {/* ---------------Appears when (selectedChat?.isUserMessage) ---------------- */}
 
       <div className={`option-bar absolute right-0 w-full  px-3 ${(selectedChat?.isUserMessage) ? "top-1" : "-top-[100%]"} transition-all duration-500 ease-in-out`}>
-        <OptionBar deleteMessage={deleteMessage} id={selectedChat?.id} setShowSeenBy={setShowSeenBy} />
+        <OptionBar deleteMessage={deleteMessage} id={selectedChat?.id} setShowSeenBy={setShowSeenBy} isGroup={isGroup} />
       </div>
 
       {/* ---------------Appears when (isGroup && selectedChat && showSeenBy) ---------------- */}
       <div className={`seebBy absolute z-50 left-0 w-full ${(selectedChat && showSeenBy && isGroup) ? "bottom-0" : "-bottom-[100%]"} transition-all duration-500 ease-in-out `}>
         {isGroup && <MessageSeenByUser seenBy={selectedChat?.seenBy} members={members} />}
       </div>
-
-      {/* {showChatInfo && <ChatInformation setShowChatInfo={setShowChatInfo} {...location.state} />} */}
-
-      {/* {selectedChat?.isUserMessage && <div className="option-bar absolute top-0 right-0 w-full  px-3">
-        <OptionBar deleteMessage={deleteMessage} id={selectedChat?.id} setShowSeenBy={setShowSeenBy} />
-      </div>} */}
-
-      {/* {(selectedChat && showSeenBy) && <div className="seebBy absolute bottom-0 z-50 left-0 w-full ">
-        <MessageSeenByUser seenBy={selectedChat?.seenBy} members={members} />
-      </div>} */}
-
 
       <div ref={chatRef} className="chats h-full p-2 overflow-scroll hide-scrollbar pb-4 space-y-1.5">
 
