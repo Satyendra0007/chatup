@@ -29,7 +29,6 @@ router.route("/react/:messageId").put(
     .notEmpty().withMessage("message Id can't be Empty ")
     .isMongoId().withMessage("message Id must be a mongodb id"),
   body("reaction")
-    .notEmpty().withMessage("reaction should not be empty")
     .isString().withMessage("reaction  must be a string"),
   messageController.addReaction
 )

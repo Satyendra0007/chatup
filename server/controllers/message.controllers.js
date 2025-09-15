@@ -79,8 +79,9 @@ module.exports.editMessage = async (req, res) => {
   }
   try {
     const { messageId, editedText } = matchedData(req)
-    const message = await Message.updateOne({ _id: messageId }, { $set: { text: editedText } })
-    res.status(200).json({ message: "message edited" });
+    // const message = await Message.updateOne({ _id: messageId }, { $set: { text: editedText } })
+    const message = await Message.findByIdAndUpdate(messageId, { text: editedText }, { new: true })
+    res.status(200).json({ message });
   } catch (error) {
     console.log(error)
     res.status(500).json({ message: "Internal Server Error" })

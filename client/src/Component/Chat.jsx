@@ -16,7 +16,7 @@ export default function Chat({ _id, text, time, senderId, seenBy, receiverId, re
 
   const handleLongPress = useLongPress(() => {
     const isUserMessage = senderId === user.id;
-    setSelectedChat({ id: _id, isUserMessage, seenBy })
+    setSelectedChat({ id: _id, isUserMessage, seenBy, text })
   })
 
   const convertToIST = (milliseconds) => {
@@ -36,7 +36,7 @@ export default function Chat({ _id, text, time, senderId, seenBy, receiverId, re
           <div className="message primary-bg text-white max-w-60 min-w-24 md:min-w-32 rounded-md rounded-tr-none pt-1 md:pt-1  shadow-lg ">
             <div className="text text-xs md:text-[10px] px-2">{text}</div>
             <div className={`flex p-0.5 ${reaction ? "justify-between" : "justify-end"}`}>
-              {reaction && <div className="reaction p-[1px] bg-white rounded-full text-xs "> {reaction} </div>}
+              {reaction && <div className="reaction p-[2px] md:p-[1px] bg-white rounded-full text-xs "> {reaction} </div>}
               <div className="info flex gap-1  items-end">
                 <div className="time text-[8px] md:text-[7px] ">{convertToIST(time) || ""}</div>
                 <div className="tick text-xs"> {isSeen ? <PiSealCheckFill /> : <PiSealCheck />}</div>
@@ -58,15 +58,15 @@ export default function Chat({ _id, text, time, senderId, seenBy, receiverId, re
             }
             <div className="text text-xs pt-0.5 md:text-[10px] px-2">{text}</div>
             <div className={`info flex px-1.5 py-0.5 ${reaction ? "justify-between" : "justify-end"}`}>
-              {reaction && <div className="reaction p-[1px] bg-white rounded-full text-xs "> {reaction} </div>}
+              {reaction && <div className="reaction p-[2px] md:p-[1px] bg-white rounded-full text-xs "> {reaction} </div>}
               <div className="time text-[8px] text-end md:text-[7px]">{convertToIST(time)}</div>
             </div>
           </div>
         </div>
       )}
 
-      {(isThisChatSelected) && <div ref={reactionMenu} className="reaction absolute -top-15 md:-top-12 left-auto z-50 w-80 md:w-72">
-        <Reactions addReaction={addReaction} id={_id} />
+      {(isThisChatSelected) && <div ref={reactionMenu} className="reaction absolute -top-15 md:-top-12 left-auto z-50 w-[21rem] md:w-72">
+        <Reactions addReaction={addReaction} id={_id} prevReaction={reaction} />
       </div>}
     </div>
   )

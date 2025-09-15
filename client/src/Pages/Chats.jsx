@@ -28,6 +28,7 @@ export default function Chats() {
   const [showChatInfo, setShowChatInfo] = useState(false);
   const [showSeenBy, setShowSeenBy] = useState(false)
   const [selectedChat, setSelectedChat] = useState(null)
+  const [isEditingMessage, setIsEditingMessage] = useState(false)
   const { name, imageUrl, receiverId, isGroup, members, groupAdmin } = location.state || {};
   const { fetchConversations, onlineUsers, markAsRead } = useConversationsStore()
   const chatRef = useRef(null);
@@ -44,26 +45,27 @@ export default function Chats() {
 
   const handleOnChange = (e) => {
     setText(e.target.value)
-    if (!typing) {
-      typing = true;
-      socket.emit('typing', { conversationId: convid, senderId: user.id })
-    }
-
-    lastTypingTimeRef.current = new Date().getTime()
-
-    if (typingTimeOutRef.current) {
-      clearTimeout(typingTimeOutRef.current)
-    }
-
-    typingTimeOutRef.current = setTimeout(() => {
-      const now = new Date().getTime();
-      const diff = now - lastTypingTimeRef.current
-      if (diff >= TYPING_TIMEOUT && typing) {
-        socket.emit("stop-typing", convid)
-        typing = false;
+    if (!isEditingMessage) {
+      if (!typing) {
+        typing = true;
+        socket.emit('typing', { conversationId: convid, senderId: user.id })
       }
-    }, TYPING_TIMEOUT)
 
+      lastTypingTimeRef.current = new Date().getTime()
+
+      if (typingTimeOutRef.current) {
+        clearTimeout(typingTimeOutRef.current)
+      }
+
+      typingTimeOutRef.current = setTimeout(() => {
+        const now = new Date().getTime();
+        const diff = now - lastTypingTimeRef.current
+        if (diff >= TYPING_TIMEOUT && typing) {
+          socket.emit("stop-typing", convid)
+          typing = false;
+        }
+      }, TYPING_TIMEOUT)
+    }
   }
 
   const fetchMessages = async () => {
@@ -128,6 +130,24 @@ export default function Chats() {
     } catch (error) {
       console.log(error)
       toast.error("message not deleted")
+    }
+  }
+
+  const editMessage = async () => {
+    setMessages(prev => prev.map(message => message._id === selectedChat.id ? { ...message, text: text } : message));
+    const dummyText = text;
+    setText("")
+    try {
+      const { data } = await axiosClient.put(`${import.meta.env.VITE_SERVER_URL}api/message/edit/${selectedChat.id}`, {
+        editedText: dummyText
+      }, {
+        withCredentials: true,
+      })
+      socket.emit("edit-message", data.message)
+      setSelectedChat(null)
+      toast.success("message edited ")
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -197,12 +217,19 @@ export default function Chats() {
       }
     }
 
+    const handleEdit = (payload) => {
+      if (payload?.conversationId === convid && payload?.senderId !== user?.id) {
+        setMessages(prev => prev.map(message => message._id === payload?._id ? { ...message, text: payload?.text } : message))
+      }
+    }
+
     socket.on('recieve-message', handleReceive);
     socket.on('typing', handleTyping)
     socket.on('stop-typing', handleStopTyping)
     socket.on('seen-message', handleSeen)
     socket.on('update-reaction', updateReaction)
     socket.on('delete-message', handleDelete)
+    socket.on('edit-message', handleEdit)
 
     return () => {
       socket.off('recieve-message', handleReceive);
@@ -211,6 +238,7 @@ export default function Chats() {
       socket.off('seen-message', handleSeen)
       socket.off('update-reaction', updateReaction)
       socket.off('delete-message', handleDelete)
+      socket.off('edit-message', handleEdit)
     };
   }, [convid]);
 
@@ -228,7 +256,7 @@ export default function Chats() {
 
   useEffect(() => {
     const handleCloseMenu = (e) => {
-      if (!e.target.closest(".option-bar") && !e.target.closest(".chat-message")) {
+      if (!e.target.closest(".option-bar") && !e.target.closest(".chat-message") && !e.target.closest(".chatbox")) {
         setSelectedChat(null);
         setShowSeenBy(false)
       }
@@ -291,7 +319,7 @@ export default function Chats() {
       {/* ---------------Appears when (selectedChat?.isUserMessage) ---------------- */}
 
       <div className={`option-bar absolute right-0 w-full  px-3 ${(selectedChat?.isUserMessage) ? "top-1" : "-top-[100%]"} transition-all duration-500 ease-in-out`}>
-        <OptionBar deleteMessage={deleteMessage} id={selectedChat?.id} setShowSeenBy={setShowSeenBy} isGroup={isGroup} />
+        <OptionBar deleteMessage={deleteMessage} id={selectedChat?.id} text={selectedChat?.text} setText={setText} setShowSeenBy={setShowSeenBy} isGroup={isGroup} setIsEditingMessage={setIsEditingMessage} />
       </div>
 
       {/* ---------------Appears when (isGroup && selectedChat && showSeenBy) ---------------- */}
@@ -332,14 +360,13 @@ export default function Chats() {
 
           <button
             disabled={text?.length === 0 || loading}
-            onClick={sendMessage}
-            className="p-3 rounded-full primary-bg active:scale-95 transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={isEditingMessage ? editMessage : sendMessage}
+            className="sendbutton p-3 rounded-full primary-bg active:scale-95 transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <BsFillSendFill className="text-xl text-white" />
           </button>
         </div>
       </div>
-
     </div>
   )
 }

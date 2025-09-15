@@ -81,6 +81,10 @@ io.on('connection', (socket) => {
     io.to(payload.conversationId).emit("delete-message", payload)
   })
 
+  socket.on("edit-message", (payload) => {
+    io.to(payload.conversationId).emit("edit-message", payload)
+  })
+
   socket.on('disconnect', () => {
     console.log("user disconnected")
     for (let [userId, id] of onlineUsers.entries()) {
