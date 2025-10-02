@@ -9,14 +9,39 @@ import { useConversationsStore } from '@/Context/ConversationsStore';
 import ConversationSpinner from '@/spinners/ConvSpinner';
 import socket from '@/utils/socket';
 import { useUser } from '@clerk/clerk-react';
+import { LuUserSearch } from "react-icons/lu";
 
 export default function Conversations() {
 
+  const { user } = useUser();
   const [selectedConversation, setSelectedConversation] = useState("")
   const { loading, conversations, fetchConversations } = useConversationsStore()
   const location = useLocation();
   const isChatLayout = location.pathname?.startsWith("/chatlayout/")
-  const { user } = useUser();
+  const [search, setSearch] = useState("")
+  const cateogaries = ["All", "People", "Group", "Unread"]
+  const [selectedCateogary, setSelectedCateogary] = useState('All');
+  const [filteredConversation, setFilteredConversation] = useState([])
+
+  useEffect(() => {
+    let filtered = conversations.filter(conversation => {
+      return conversation?.name?.toLowerCase().includes(search.toLowerCase()) || conversation?.email?.includes(search.toLowerCase())
+    })
+
+    switch (selectedCateogary) {
+      case "People":
+        filtered = filtered.filter(conversation => !conversation?.isGroup)
+        break;
+      case "Group":
+        filtered = filtered.filter(conversation => conversation?.isGroup)
+        break;
+      case "Unread":
+        filtered = filtered.filter(conversation => conversation?.unreadBy?.includes(user.id))
+        break;
+    }
+
+    setFilteredConversation(filtered)
+  }, [selectedCateogary, search, conversations, user?.id])
 
   useEffect(() => {
     fetchConversations();
@@ -44,16 +69,38 @@ export default function Conversations() {
     <div className="cantainer flex">
       <div className="  w-full md:w-auto relative top-0">
         <div className='h-[94vh] md:h-screen w-full md:w-80 box-border md:border-r-2 overflow-scroll hide-scrollbar '>
-          <div className="heading sticky top-0 left-0 z-40 bg-white  shadow-xs py-1">
+
+          <div className="heading sticky top-0 left-0 z-40 bg-white  shadow-xs py-2 ">
             <Navbar />
-            <h1 className='px-3 text-lg md:text-xl mb-4 md:mb-0 md:py-4'>Conversations </h1>
+            <div className="search flex justify-center items-center w-[21rem] md:w-72 mx-auto h-12  md:h-11 border border-green-300 rounded-full my-1 focus-within:ring-1 focus-within:ring-green-500 shadow-sm transition-all ease-out duration-100">
+              <div className="p-3 md:p-2 text-green-500 text-2xl">
+                <LuUserSearch />
+              </div>
+              <input
+                type="email"
+                onChange={(e) => setSearch(e.target.value)}
+                value={search}
+                placeholder='Enter Name or Email'
+                className=' md:text-sm outline-none flex-grow min-w-0'
+              />
+
+            </div>
+            <div className="filter px-4 py-1 space-x-2">
+              {cateogaries.map(cateogary => {
+                return <button
+                  key={cateogary}
+                  onClick={() => setSelectedCateogary(cateogary)}
+                  className={`px-4 py-1 text-xs md:text-[11px] border border-gray-400 rounded-full cursor-pointer hover:bg-gray-200 ${selectedCateogary === cateogary ? "border-2 border-green-600" : ""}`}>{cateogary}
+                </button>
+              })}
+            </div>
           </div>
 
           <div className="conversations p-1 space-y-1 flex flex-col items-center ">
-            {(conversations?.length == 0 && loading) && <ConversationSpinner />}
-            {(conversations?.length <= 0 && !loading) ? <div className="text-center my-3"> No Conversation </div>
+            {(filteredConversation?.length == 0 && loading) && <ConversationSpinner />}
+            {(filteredConversation?.length <= 0 && !loading) ? <div className="text-center my-3"> No Conversation </div>
               :
-              conversations?.map((conversation, index) => {
+              filteredConversation?.map((conversation, index) => {
                 return <Conversation key={index} {...conversation}
                   selectedConversation={selectedConversation}
                   setSelectedConversation={setSelectedConversation}

@@ -97,14 +97,14 @@ export default function SearchUser() {
 
       <div className="button p-3 flex  justify-center">
         <button
-          className={`${!isGroup ? "primary-bg text-white " : "bg-gray-200"} flex justify-center items-center gap-2 py-3 w-40 rounded-l-full cursor-pointer shadow-lg `}
+          className={` bg-gray-200 ${!isGroup ? "primary-bg text-white " : ""} flex justify-center items-center gap-2 py-3 w-40 rounded-l-full cursor-pointer shadow-lg transition-all duration-150 ease-in-out`}
           onClick={() => setIsGroup(false)}
         >
           <span>Friend</span>
           <HiUserAdd />
         </button>
         <button
-          className={`${isGroup ? "primary-bg text-white " : "bg-gray-300"} flex justify-center items-center gap-2 py-3 w-40 rounded-r-full cursor-pointer shadow-lg `}
+          className={` bg-gray-300 ${isGroup ? "primary-bg text-white " : ""} flex justify-center items-center gap-2 py-3 w-40 rounded-r-full cursor-pointer shadow-lg transition-all duration-150 ease-in-out`}
           onClick={() => setIsGroup(true)}
         >
           <span>Group</span>
