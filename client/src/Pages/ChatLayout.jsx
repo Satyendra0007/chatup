@@ -2,7 +2,6 @@ import { Outlet } from 'react-router-dom';
 import Conversations from './Conversations';
 
 export default function ChatLayout() {
-
   return (
     <div>
       {/*---------------------- Chat layout for sm devices------------------------- */}

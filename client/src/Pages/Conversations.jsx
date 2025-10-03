@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import userimage from "@/assets/user.png"
 import Navbar from '@/Component/Navbar';
 import girl from "@/assets/girl.png"
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useConversationsStore } from '@/Context/ConversationsStore';
 import ConversationSpinner from '@/spinners/ConvSpinner';
 import socket from '@/utils/socket';
@@ -22,6 +22,7 @@ export default function Conversations() {
   const cateogaries = ["All", "People", "Group", "Unread"]
   const [selectedCateogary, setSelectedCateogary] = useState('All');
   const [filteredConversation, setFilteredConversation] = useState([])
+  const conversationRef = useRef(conversations)
 
   useEffect(() => {
     let filtered = conversations.filter(conversation => {
@@ -48,7 +49,18 @@ export default function Conversations() {
   }, [])
 
   useEffect(() => {
+    conversationRef.current = conversations
+  }, [conversations])
+
+  useEffect(() => {
     const handleReceive = (payload) => {
+      const sender = conversationRef.current.find((conversation) => conversation.conversationId === payload.conversationId)
+      if (Notification.permission === "granted") {
+        new Notification(`New Message from ${sender.name}`, {
+          body: payload.text,
+          icon: sender.imageUrl
+        });
+      }
       fetchConversations();
     };
 
@@ -72,7 +84,7 @@ export default function Conversations() {
 
           <div className="heading sticky top-0 left-0 z-40 bg-white  shadow-xs py-2 ">
             <Navbar />
-            <div className="search flex justify-center items-center w-[21rem] md:w-72 mx-auto h-12  md:h-11 border border-green-300 rounded-full my-1 focus-within:ring-1 focus-within:ring-green-500 shadow-sm transition-all ease-out duration-100">
+            <div className="search flex justify-center items-center w-[21rem] md:w-72 mx-auto h-11  border border-green-300 rounded-full my-1 focus-within:ring-1 focus-within:ring-green-500 shadow-sm transition-all ease-out duration-100">
               <div className="p-3 md:p-2 text-green-500 text-2xl">
                 <LuUserSearch />
               </div>
@@ -85,12 +97,12 @@ export default function Conversations() {
               />
 
             </div>
-            <div className="filter px-4 py-1 space-x-2">
+            <div className="filter px-4 py-1 flex justify-center gap-2 items-center">
               {cateogaries.map(cateogary => {
                 return <button
                   key={cateogary}
                   onClick={() => setSelectedCateogary(cateogary)}
-                  className={`px-4 py-1 text-xs md:text-[11px] border border-gray-400 rounded-full cursor-pointer hover:bg-gray-200 ${selectedCateogary === cateogary ? "border-2 border-green-600" : ""}`}>{cateogary}
+                  className={`px-4 py-1.5 text-xs md:text-[11px] border border-gray-400 rounded-full cursor-pointer hover:bg-gray-200 ${selectedCateogary === cateogary ? "border-2 border-green-600" : ""} `}>{cateogary}
                 </button>
               })}
             </div>
