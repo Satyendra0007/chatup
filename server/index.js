@@ -7,6 +7,7 @@ const { connectDB } = require("./utils/db")
 const cors = require("cors")
 const { clerkMiddleware } = require('@clerk/express');
 const messageRouter = require("./routes/message.routes")
+const aiRouter = require("./routes/ai.routes")
 const { Server } = require("socket.io")
 
 const PORT = 3000;
@@ -31,6 +32,7 @@ app.use(express.json())
 app.use("/api/user", userRouter)
 app.use("/api/conversation", consversationRouter)
 app.use("/api/message", messageRouter)
+app.use("/api/ai", aiRouter)
 
 app.get("/", (req, res) => {
   res.status(200).send("Hello World !")

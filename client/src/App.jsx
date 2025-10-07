@@ -5,6 +5,7 @@ import Conversations from "./Pages/Conversations";
 import SearchUser from "./Pages/SearchUser";
 import Chats from "./Pages/Chats"
 import ChatLayout from "./Pages/ChatLayout";
+import AiChat from "./Pages/AiChat";
 import {
   SignedIn,
   SignedOut,
@@ -19,6 +20,7 @@ function App() {
       <Routes>
         <Route path="/" element={<SignedOut>  <LandingPage />  </SignedOut>} />
         <Route path="/conversation" element={<SignedIn> <Conversations /> </SignedIn>} />
+        <Route path="/aichat" element={<SignedIn> <AiChat /> </SignedIn>} />
         <Route path="/chatlayout" element={<SignedIn> <ChatLayout /></SignedIn>}>
           <Route path="search" element={<SearchUser />} />
           <Route path="chats/:convid" element={<Chats />} />

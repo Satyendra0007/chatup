@@ -10,6 +10,7 @@ import ConversationSpinner from '@/spinners/ConvSpinner';
 import socket from '@/utils/socket';
 import { useUser } from '@clerk/clerk-react';
 import { LuUserSearch } from "react-icons/lu";
+import ai from "../assets/ai.gif"
 
 export default function Conversations() {
 
@@ -54,6 +55,7 @@ export default function Conversations() {
 
   useEffect(() => {
     const handleReceive = (payload) => {
+      fetchConversations();
       const sender = conversationRef.current.find((conversation) => conversation.conversationId === payload.conversationId)
       if (Notification.permission === "granted") {
         new Notification(`New Message from ${sender.name}`, {
@@ -61,7 +63,6 @@ export default function Conversations() {
           icon: sender.imageUrl
         });
       }
-      fetchConversations();
     };
 
     if (!socket.connected) {
@@ -74,13 +75,13 @@ export default function Conversations() {
       socket.off('recieve-message', handleReceive);
       socket.disconnect()
     };
-  }, []);
+  }, [user.id]);
 
 
   return (
     <div className="cantainer flex">
       <div className="  w-full md:w-auto relative top-0">
-        <div className='h-[94vh] md:h-screen w-full md:w-80 box-border md:border-r-2 overflow-scroll hide-scrollbar '>
+        <div className='h-[94vh] md:h-screen w-full md:w-80 box-border md:border-r-1 border-gray-400 overflow-scroll hide-scrollbar '>
 
           <div className="heading sticky top-0 left-0 z-40 bg-white  shadow-xs py-2 ">
             <Navbar />
@@ -120,7 +121,12 @@ export default function Conversations() {
               })}
           </div>
 
-          <div className="button absolute right-6 md:bottom-8 bottom-12 z-10 shadow-2xl">
+          <div className="button absolute right-6 md:bottom-8 bottom-12 z-10 flex flex-col gap-3 bg-transparent justify-center items-center ">
+            <Link to="/aichat">
+              <div className='p-2  bg-white border border-green-400 rounded-full cursor-pointer'>
+                <img className='w-8' src={ai} alt="" />
+              </div>
+            </Link>
             <Link to="/chatlayout/search">
               <button className='p-3 primary-bg text-white text-3xl rounded-full cursor-pointer'><HiUserAdd /></button>
             </Link>
