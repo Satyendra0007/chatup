@@ -23,7 +23,7 @@ function App() {
         <Route path="/aichat" element={<SignedIn> <AiChat /> </SignedIn>} />
         <Route path="/chatlayout" element={<SignedIn> <ChatLayout /></SignedIn>}>
           <Route path="search" element={<SearchUser />} />
-          <Route path="chats/:convid" element={<Chats />} />
+          <Route path="chats" element={<Chats />} />
         </Route>
       </Routes >
     </>

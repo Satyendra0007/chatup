@@ -1,7 +1,7 @@
 import { FaArrowLeft } from "react-icons/fa";
 import { BsFillSendFill } from "react-icons/bs";
 import Chat from "@/Component/Chat";
-import { Link, useParams, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useConversationsStore } from "@/Context/ConversationsStore";
 import userimage from '../assets/user.png'
@@ -18,7 +18,6 @@ import OptionBar from "@/Component/OptionBar";
 import MessageSeenByUser from "@/Component/MessageSeenByUser";
 
 export default function Chats() {
-  const { convid } = useParams();
   const { user } = useUser();
   const location = useLocation();
   const [messages, setMessages] = useState([])
@@ -29,7 +28,7 @@ export default function Chats() {
   const [showSeenBy, setShowSeenBy] = useState(false)
   const [selectedChat, setSelectedChat] = useState(null)
   const [isEditingMessage, setIsEditingMessage] = useState(false)
-  const { name, imageUrl, receiverId, isGroup, members, groupAdmin } = location.state || {};
+  const { name, imageUrl, receiverId, isGroup, members, groupAdmin, convid } = location.state || {};
   const { fetchConversations, onlineUsers, markAsRead } = useConversationsStore()
   const chatRef = useRef(null);
   const lastTypingTimeRef = useRef(null)

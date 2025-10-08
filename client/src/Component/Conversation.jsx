@@ -28,8 +28,8 @@ export default function Conversation({
     } else {
       data = { receiverId, name, imageUrl, email, isGroup };
     }
-    navigate(`/chatlayout/chats/${conversationId}`, {
-      state: data,
+    navigate(`/chatlayout/chats`, {
+      state: { ...data, convid: conversationId },
     });
     setSelectedConversation(conversationId);
   };
