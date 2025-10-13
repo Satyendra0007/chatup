@@ -35,3 +35,18 @@ module.exports.getPreviousResponse = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" })
   }
 }
+
+module.exports.deleteResponse = async (req, res) => {
+  const result = validationResult(req)
+  if (!result.isEmpty()) {
+    return res.status(400).json({ error: result.array() })
+  }
+  try {
+    const { responseId } = matchedData(req)
+    await AiChat.deleteOne({ _id: responseId })
+    res.status(200).json({ message: "Response Deleted !" })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: " Internal Server Error" })
+  }
+}

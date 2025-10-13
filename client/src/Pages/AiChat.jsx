@@ -56,6 +56,17 @@ export default function AiChat() {
     }
   }
 
+  const deleteResponse = async (id) => {
+    try {
+      const { data } = await axiosClient.delete(`${import.meta.env.VITE_SERVER_URL}api/ai/${id}`, {
+        withCredentials: true,
+      })
+      setResponseList(prev => prev.filter(response => response._id !== id))
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text)
     toast.success("Text Copied")
@@ -100,7 +111,7 @@ export default function AiChat() {
       <div ref={chatRef} className="chats h-full p-2 overflow-scroll hide-scrollbar pb-12 space-y-6">
         {(responseList.length === 0)
           ? <h1 className="text-xl font-semibold text-center mt-4"> How Can I Help You ? </h1>
-          : responseList.map(response => <AiResponse key={response._id} {...response} handleCopy={handleCopy} />)
+          : responseList.map(response => <AiResponse key={response._id} {...response} handleCopy={handleCopy} deleteResponse={deleteResponse} />)
         }
         {loading && <div> <img className="w-7 ml-3" src={thinking} alt="" /></div>}
       </div>

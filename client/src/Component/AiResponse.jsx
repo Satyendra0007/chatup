@@ -6,7 +6,7 @@ import { FaRegCopy } from "react-icons/fa6";
 import { MdDeleteOutline } from "react-icons/md";
 import { useUser } from "@clerk/clerk-react"
 
-export default function AiResponse({ _id, prompt, response, handleCopy }) {
+export default function AiResponse({ _id, prompt, response, handleCopy, deleteResponse }) {
   const { user } = useUser()
 
   return (
@@ -30,7 +30,7 @@ export default function AiResponse({ _id, prompt, response, handleCopy }) {
             </ReactMarkdown>
           </div>
           <div className="button text-right space-x-2 py-2">
-            <button onClick={() => handleCopy(response)} className="p-2 border rounded-full border-gray-400 cursor-pointer hover:bg-gray-200"><MdDeleteOutline /></button>
+            <button onClick={() => deleteResponse(_id)} className="p-2 border rounded-full border-gray-400 cursor-pointer hover:bg-gray-200"><MdDeleteOutline /></button>
             <button onClick={() => handleCopy(response)} className="p-2 border rounded-full border-gray-400 cursor-pointer hover:bg-gray-200"><FaRegCopy /></button>
           </div>
         </div>
