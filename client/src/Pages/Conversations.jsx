@@ -80,7 +80,7 @@ export default function Conversations() {
 
   return (
     <div className="cantainer flex">
-      <div className="  w-full md:w-auto relative top-0">
+      <div className="  w-full md:w-auto relative top-0 hide-scrollbar">
         <div className='h-screen w-full md:w-80 box-border md:border-r-1 border-gray-400 overflow-scroll hide-scrollbar '>
 
           <div className="heading sticky top-0 left-0 z-40 bg-white  shadow-xs py-2 ">
