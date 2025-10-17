@@ -267,7 +267,7 @@ export default function Chats() {
 
 
   return (
-    <div className="flex flex-col h-[94vh] md:h-screen relative overflow-hidden">
+    <div className="flex flex-col  h-screen relative overflow-hidden">
       <div className="header flex py-2 px-3 md:p-1.5 bg-white items-center justify-between  shadow-md">
         <div className=" user flex">
           <Link to="/conversation" >

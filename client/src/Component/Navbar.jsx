@@ -34,7 +34,7 @@ export default function Navbar() {
         <div className="button flex gap-2 md:gap-4">
           {(!isSignedIn) ? <>
             <button onClick={() => openSignIn()} className='  cursor-pointer py-2 px-6 md:px-8 bg-slate-200 text-sm md:text-base  btn-rounded hover:bg-slate-300'>Login</button>
-            <button onClick={() => openSignUp()} className='primary-bg px-4 md:px-6 py-2 btn-rounded   text-white text-sm md:text-base cursor-pointer hover:opacity-95'>Get Started</button>
+            <button onClick={() => openSignUp()} className='primary-bg px-4 md:px-6 py-2 btn-rounded   text-white text-sm md:text-base cursor-pointer hover:opacity-95'>SignUp</button>
           </> : <>
             <div className=" flex  items-center gap-3 scale-150 mr-3">
               {!isNotificationGranted && <button onClick={() => setShowModal(true)} className="button p-1.5 bg-rose-500 text-white rounded-full text-md cursor-pointer"><IoNotificationsOffOutline /></button>}
