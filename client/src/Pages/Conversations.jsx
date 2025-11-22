@@ -111,9 +111,9 @@ export default function Conversations() {
 
           <div className="conversations p-1 space-y-1 flex flex-col items-center ">
             {(filteredConversation?.length == 0 && loading) && <ConversationSpinner />}
-            {(filteredConversation?.length <= 0 && !loading) ? <div className="text-center my-3"> No Conversation </div>
-              :
-              filteredConversation?.map((conversation, index) => {
+            {(filteredConversation?.length <= 0 && !loading)
+              ? <div className="text-center my-3"> No Conversation </div>
+              : filteredConversation?.map((conversation, index) => {
                 return <Conversation key={index} {...conversation}
                   selectedConversation={selectedConversation}
                   setSelectedConversation={setSelectedConversation}

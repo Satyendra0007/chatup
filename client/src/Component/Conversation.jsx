@@ -16,9 +16,10 @@ export default function Conversation({
   groupAdmin,
   members,
 }) {
+
   const { user } = useUser();
   const navigate = useNavigate();
-  const isUnread = unreadBy?.includes(user.id);
+  const isUnread = unreadBy?.includes(user?.id);
   const isSelected = conversationId === selectedConversation;
 
   const handleOnClick = (conversationId) => {

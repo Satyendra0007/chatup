@@ -72,14 +72,16 @@ module.exports.getConversations = async (req, res) => {
       if (!isGroup) {
         const receiver = members.find(id => id !== userId)
         const user = await getUserById(receiver);
-        const { id, firstName, imageUrl, emailAddresses } = user;
+        // if (user) {
+        //   const { id, firstName, imageUrl, emailAddresses } = user;
+        // }
         return {
           conversationId: _id,
           isGroup,
-          receiverId: id,
-          name: firstName,
-          imageUrl,
-          email: emailAddresses[0].emailAddress,
+          receiverId: user?.id || null,
+          name: user?.firstName || "not available",
+          imageUrl: user?.imageUrl || null,
+          email: user?.emailAddresses[0].emailAddress || null,
           lastMessage: decryptedLastMessage,
           unreadBy
         }
@@ -87,12 +89,14 @@ module.exports.getConversations = async (req, res) => {
       //for group chats
       const membersDetails = await Promise.all(members.map(async (member) => {
         const user = await getUserById(member);
-        const { id, firstName, imageUrl, emailAddresses } = user;
+        // if (user) {
+        //   const { id, firstName, imageUrl, emailAddresses } = user;
+        // }
         return {
-          id: id,
-          firstName,
-          imageUrl,
-          email: emailAddresses[0].emailAddress
+          id: user?.id || null,
+          firstName: user?.firstName || null,
+          imageUrl: user?.imageUrl || null,
+          email: user?.emailAddresses[0].emailAddress || null
         }
       }))
       return {
