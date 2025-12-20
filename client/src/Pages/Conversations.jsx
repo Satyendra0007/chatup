@@ -81,7 +81,7 @@ export default function Conversations() {
   return (
     <div className="cantainer flex">
       <div className="  w-full md:w-auto relative top-0 hide-scrollbar">
-        <div className='h-[95vh] md:h-screen w-full md:w-80 box-border md:border-r-1 border-gray-400 overflow-scroll hide-scrollbar '>
+        <div className='h-[94vh] md:h-screen w-full md:w-80 box-border md:border-r-1 border-gray-400 overflow-scroll hide-scrollbar '>
 
           <div className="heading sticky top-0 left-0 z-40 bg-gradient-to-b from-white/90 via-white/75 to-white/60 py-2 backdrop-blur-xs ">
             <Navbar />

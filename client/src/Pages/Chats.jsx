@@ -272,7 +272,7 @@ export default function Chats() {
 
 
   return (
-    <div className="flex flex-col  h-[95vh] md:h-screen relative overflow-hidden">
+    <div className="flex flex-col  h-[94vh] md:h-screen relative overflow-hidden">
       <div className="header flex py-2 px-3 md:p-1.5 bg-white items-center justify-between">
         <div className=" user flex">
           <Link to="/conversation" >
@@ -283,7 +283,7 @@ export default function Chats() {
           <div className="info">
             <div className="flex gap-4 px-2  ">
               <div className="image ">
-                <img className="w-12 h-12 rounded-full" src={imageUrl || userimage} alt="" />
+                <img className="w-11 h-11 rounded-full" src={imageUrl || userimage} alt="" />
               </div>
               <div className="info">
                 <h3 className="font-semibold capitalize mb-0.5">{name}</h3>
