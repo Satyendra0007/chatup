@@ -59,7 +59,7 @@ io.on('connection', (socket) => {
     }
     members.forEach(member => {
       if (member === payload.newMessage.senderId) return;
-      io.to(member).emit('recieve-message', payload.newMessage)
+      io.to(member).emit('recieve-message', payload)
     });
   })
 

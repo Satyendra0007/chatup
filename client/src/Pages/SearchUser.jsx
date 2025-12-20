@@ -79,9 +79,12 @@ export default function SearchUser() {
       }
       setUserData(null)
     } catch (error) {
+      toast.error(error.message)
       console.log(error)
     }
-    setLoading(false)
+    finally {
+      setLoading(false)
+    }
   }
 
   const removeUser = (id) => {

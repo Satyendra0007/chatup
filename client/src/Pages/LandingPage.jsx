@@ -39,16 +39,7 @@ export default function LandingPage() {
 
       </main >
 
-      {/* <footer className=' '>
-        <div className=" text-center mx-auto absolute bottom-5 md:bottom-2 w-full">
-          <a className='text-white py-3  px-10 rounded-full primary-bg inline-flex justify-center items-center gap-1 text-xs hover:opacity-90 ' target='_blank' href="https://satyendra03.vercel.app/">
-            <FaUser className='' />
-            <span>About Me</span>
-          </a>
-        </div>
-      </footer> */}
-
-      <footer footer className=' md:mt-5 ' >
+      <footer className=' md:mt-5 ' >
         <div className=" text-center mx-auto w-full">
           <a className='text-white py-3 px-10 rounded-full primary-bg inline-flex justify-center items-center gap-1 text-xs hover:opacity-90 ' target='_blank' href="https://satyendra03.vercel.app/">
             <FaUser className='' />

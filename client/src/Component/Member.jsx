@@ -5,7 +5,7 @@ import { useUser } from "@clerk/clerk-react"
 export default function Member({ id, imageUrl, firstName, lastName, email, groupAdmin }) {
   const { user } = useUser();
   return (
-    <div className=" flex justify-between items-center px-2  py-1 bg-slate-50 w-[21rem]  border rounded-sm ">
+    <div className=" flex justify-between items-center px-2  py-1.5 bg-slate-50 w-[21rem]  border border-gray-200 rounded-lg ">
       <div className="info flex gap-4">
         <div className="image ">
           <img className="w-12 md:w-10 h-12 md:h-10 rounded-full" src={imageUrl} alt="" />

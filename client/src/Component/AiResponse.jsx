@@ -16,7 +16,7 @@ export default function AiResponse({ _id, prompt, response, handleCopy, deleteRe
           <p>{prompt}</p>
         </div>
         <div className="imgage">
-          <img className="w-7 rounded-full" src={user?.imageUrl} alt="" />
+          <img className="w-8 h-8 rounded-full" src={user?.imageUrl} alt="" />
         </div>
       </div>
       {response && <div className="response flex md:ml-5 gap-2">

@@ -88,8 +88,8 @@ export default function AiChat() {
 
 
   return (
-    <div className="flex flex-col h-screen relative overflow-hidden">
-      <div className="header py-2 px-3 md:px-6 md:gap-4 md:p-1.5 bg-white shadow-md">
+    <div className="flex flex-col h-[95vh] md:h-screen relative overflow-hidden">
+      <div className="header py-2 px-3 md:px-6 md:gap-4 md:p-1.5 bg-white">
         <div className=" user flex items-center md:gap-4">
           <Link to="/conversation" >
             <div className="button text-xl h-11 w-11 flex-shrink-0 flex justify-center items-center  bg-gray-200 rounded-full shadow-xl">

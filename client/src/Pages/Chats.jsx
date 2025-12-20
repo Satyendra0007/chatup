@@ -22,14 +22,14 @@ export default function Chats() {
   const location = useLocation();
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(false)
-  const [chatLoading, setChatLoading] = useState(false);
+  const [isChatLoading, setIsChatLoading] = useState(false);
   const [text, setText] = useState("")
   const [showChatInfo, setShowChatInfo] = useState(false);
   const [showSeenBy, setShowSeenBy] = useState(false)
   const [selectedChat, setSelectedChat] = useState(null)
   const [isEditingMessage, setIsEditingMessage] = useState(false)
   const { name, imageUrl, receiverId, isGroup, members, groupAdmin, convid } = location.state || {};
-  const { fetchConversations, onlineUsers, markAsRead } = useConversationsStore()
+  const { setCoversations, onlineUsers, markAsReadOnServer, markConversationAsRead } = useConversationsStore()
   const chatRef = useRef(null);
   const lastTypingTimeRef = useRef(null)
   const typingTimeOutRef = useRef(null)
@@ -68,17 +68,19 @@ export default function Chats() {
   }
 
   const fetchMessages = async () => {
-    setChatLoading(true)
+    setIsChatLoading(true)
     try {
       const response = await axiosClient.get(`${import.meta.env.VITE_SERVER_URL}api/message/get/${convid}`, {
         withCredentials: true,
       });
       setMessages(response?.data)
-      fetchConversations();
+      socket.emit('seen-message', { conversationId: convid, userId: user?.id })
     } catch (error) {
       console.log(error)
     }
-    setChatLoading(false)
+    finally {
+      setIsChatLoading(false)
+    }
   }
 
   const sendMessage = async () => {
@@ -98,11 +100,13 @@ export default function Chats() {
       socket.emit("stop-typing", convid);
       typing = false;
       setMessages(prev => prev.map(message => message._id === dummyId ? data?.newMessage : message))
-      fetchConversations();
+      setCoversations(prev => prev.map(conversation => conversation.conversationId === data.conversation._id ? { ...conversation, lastMessage: data.newMessage, unreadBy: data.conversation.unreadBy } : conversation))
     } catch (error) {
       console.log(error)
     }
-    setLoading(false)
+    finally {
+      setLoading(false)
+    }
   }
 
   const addReaction = async (id, reaction) => {
@@ -152,7 +156,8 @@ export default function Chats() {
 
   useEffect(() => {
     fetchMessages();
-    socket.emit('seen-message', { conversationId: convid, userId: user?.id })
+    markAsReadOnServer(convid);
+    markConversationAsRead(convid, user?.id)
     if (showChatInfo) {
       setShowChatInfo(false)
     }
@@ -170,14 +175,15 @@ export default function Chats() {
 
   useEffect(() => {
     const handleReceive = (payload) => {
-      if (payload?.conversationId === convid) {
-        setMessages((prev) => [...prev, payload]);
+      if (payload?.conversation._id === convid) {
+        setMessages((prev) => [...prev, payload.newMessage]);
         socket.emit('seen-message', { conversationId: convid, userId: user?.id })
+        markConversationAsRead(convid, user?.id)
+        markAsReadOnServer(convid);
       }
       else {
         toast.success("New Message Received", { id: 'new-msg' });
       }
-      fetchConversations();
     };
 
     const handleTyping = (payload) => {
@@ -249,7 +255,6 @@ export default function Chats() {
         behavior: "smooth",
       });
     }
-    markAsRead(convid);
   }, [messages, isTyping]);
 
 
@@ -267,8 +272,8 @@ export default function Chats() {
 
 
   return (
-    <div className="flex flex-col  h-screen relative overflow-hidden">
-      <div className="header flex py-2 px-3 md:p-1.5 bg-white items-center justify-between  shadow-md">
+    <div className="flex flex-col  h-[95vh] md:h-screen relative overflow-hidden">
+      <div className="header flex py-2 px-3 md:p-1.5 bg-white items-center justify-between">
         <div className=" user flex">
           <Link to="/conversation" >
             <div className="button text-xl h-11 w-11 flex-shrink-0 flex justify-center items-center  bg-gray-200 rounded-full shadow-xl md:hidden">
@@ -327,8 +332,7 @@ export default function Chats() {
       </div>
 
       <div ref={chatRef} className="chats h-full p-2 overflow-scroll hide-scrollbar pb-4 space-y-1.5">
-
-        {chatLoading
+        {isChatLoading
           ? <ChatSkeleton />
           : (messages?.length === 0)
             ? <div className="text-center my-3"> No Messages </div>
@@ -346,8 +350,8 @@ export default function Chats() {
         {isTyping && <TypingIndicator />}
       </div>
 
-      <div className="chatbox sticky bottom-3 z-40 left-0 w-full px-3">
-        <div className="flex items-center justify-between gap-3 bg-white  rounded-3xl shadow-xl pl-4 pr-1 py-1 md:py-0.5 border border-green-400 focus-within:ring-1 focus-within:ring-green-500  transition-all duration-300">
+      <div className="chatbox sticky bottom-3 z-40 left-0 w-full px-3 ">
+        <div className="flex items-center justify-between gap-3 bg-white rounded-3xl shadow-xl pl-4 pr-1 py-1 md:py-0.5 border border-green-400 focus-within:ring-1 focus-within:ring-green-500  transition-all duration-300">
 
           <input
             value={text}

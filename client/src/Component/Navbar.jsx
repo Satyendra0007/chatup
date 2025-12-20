@@ -25,7 +25,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className='flex justify-between items-center px-5 py-3 md:py-5 bg-white'>
+      <header className='flex justify-between items-center px-5 py-3 md:py-5 bg-white/60'>
         <div className="logo text-xl md:text-2xl flex items-center gap-1 border-1 bg-green-100 shadow-lg border-green-400 px-3 py-1 rounded-full  ">
           <div className="text font-bold logo-font">ChatUp</div>
           <div className="icon text-green-700 "><IoChatbubbleSharp /></div>

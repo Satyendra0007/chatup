@@ -34,7 +34,7 @@ export default function MessageSeenByUser({ seenBy, members }) {
             ? remainingMembers?.map(member => {
               return <div key={member.id} className="info flex gap-4 w-72">
                 <div className="image ">
-                  <img className="w-10  h-10 md:w-8 md:h-8 rounded-full" src={member.imageUrl} alt="" />
+                  <img className="w-10 h-10 md:w-8 md:h-8 rounded-full" src={member.imageUrl} alt="" />
                 </div>
                 <div className="info flex flex-col justify-center">
                   <h3 className="text-sm md:text-xs capitalize">{member.firstName}</h3>

@@ -16,7 +16,7 @@ export default function Conversations() {
 
   const { user } = useUser();
   const [selectedConversation, setSelectedConversation] = useState("")
-  const { loading, conversations, fetchConversations } = useConversationsStore()
+  const { isConversationLoading, conversations, fetchConversations, updateConversation } = useConversationsStore()
   const location = useLocation();
   const isChatLayout = location.pathname?.startsWith("/chatlayout/")
   const [search, setSearch] = useState("")
@@ -55,10 +55,10 @@ export default function Conversations() {
 
   useEffect(() => {
     const handleReceive = (payload) => {
-      fetchConversations();
-      const sender = conversationRef.current.find((conversation) => conversation.conversationId === payload.conversationId)
+      updateConversation(payload);
+      const sender = conversationRef.current.find((conversation) => conversation.conversationId === payload.newMessage.conversationId)
       if (Notification.permission === "granted") {
-        new Notification(`New Message from ${sender.name}`, {
+        new Notification(`New Message from ${sender?.name}`, {
           body: payload.text,
           icon: sender.imageUrl
         });
@@ -81,12 +81,12 @@ export default function Conversations() {
   return (
     <div className="cantainer flex">
       <div className="  w-full md:w-auto relative top-0 hide-scrollbar">
-        <div className='h-screen w-full md:w-80 box-border md:border-r-1 border-gray-400 overflow-scroll hide-scrollbar '>
+        <div className='h-[95vh] md:h-screen w-full md:w-80 box-border md:border-r-1 border-gray-400 overflow-scroll hide-scrollbar '>
 
-          <div className="heading sticky top-0 left-0 z-40 bg-white  shadow-xs py-2 ">
+          <div className="heading sticky top-0 left-0 z-40 bg-gradient-to-b from-white/90 via-white/75 to-white/60 py-2 backdrop-blur-xs ">
             <Navbar />
-            <div className="search flex justify-center items-center w-[21rem] md:w-72 mx-auto h-11  border border-green-300 rounded-full my-1 focus-within:ring-1 focus-within:ring-green-500 shadow-sm transition-all ease-out duration-100">
-              <div className="p-3 md:p-2 text-green-500 text-2xl">
+            <div className="search flex justify-center items-center w-[21rem] md:w-72 mx-auto h-11  border-1 border-green-500 rounded-full my-1 focus-within:ring-1 focus-within:ring-green-600 shadow-sm transition-all ease-out duration-100">
+              <div className="p-3 md:p-2 text-green-600 text-2xl">
                 <LuUserSearch />
               </div>
               <input
@@ -110,8 +110,8 @@ export default function Conversations() {
           </div>
 
           <div className="conversations p-1 space-y-1 flex flex-col items-center ">
-            {(filteredConversation?.length == 0 && loading) && <ConversationSpinner />}
-            {(filteredConversation?.length <= 0 && !loading)
+            {(filteredConversation?.length == 0 && isConversationLoading) && <ConversationSpinner />}
+            {(filteredConversation?.length <= 0 && !isConversationLoading)
               ? <div className="text-center my-3"> No Conversation </div>
               : filteredConversation?.map((conversation, index) => {
                 return <Conversation key={index} {...conversation}
