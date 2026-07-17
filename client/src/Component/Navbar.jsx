@@ -25,39 +25,49 @@ export default function Navbar() {
 
   return (
     <>
-      <header className='flex justify-between items-center px-5 py-3 md:py-5 bg-white/60'>
-        <div className="logo text-xl md:text-2xl flex items-center gap-1 border-1 bg-green-100 shadow-lg border-green-400 px-3 py-1 rounded-full  ">
-          <div className="text font-bold logo-font">ChatUp</div>
-          <div className="icon text-green-700 "><IoChatbubbleSharp /></div>
+      <header className='flex justify-between items-center px-5 py-3 md:py-4 bg-transparent'>
+        <div className="logo text-base md:text-lg flex items-center gap-1.5 bg-[var(--bg-active)] border border-[var(--accent-muted)] px-3 py-1 rounded-full shadow-[var(--shadow-xs)]">
+          <div className="text font-semibold logo-font text-[var(--accent-dark)]">ChatUp</div>
+          <div className="icon text-[var(--accent)] text-sm"><IoChatbubbleSharp /></div>
         </div>
 
-        <div className="button flex gap-2 md:gap-4">
+        <div className="button flex gap-2 md:gap-3 items-center">
           {(!isSignedIn) ? <>
-            <button onClick={() => openSignIn()} className='  cursor-pointer py-2 px-6 md:px-8 bg-slate-200 text-sm md:text-base  btn-rounded hover:bg-slate-300'>Login</button>
-            <button onClick={() => openSignUp()} className='primary-bg px-4 md:px-6 py-2 btn-rounded   text-white text-sm md:text-base cursor-pointer hover:opacity-95'>SignUp</button>
+            <button onClick={() => openSignIn()} className='cursor-pointer py-1.5 px-5 md:px-6 bg-[var(--bg-hover)] text-[var(--text-primary)] text-sm md:text-sm btn-rounded transition-colors shadow-[var(--shadow-xs)]'>Login</button>
+            <button onClick={() => openSignUp()} className='primary-bg px-4 md:px-5 py-1.5 btn-rounded text-white text-sm cursor-pointer hover:opacity-90 transition-opacity shadow-[var(--shadow-xs)]'>SignUp</button>
           </> : <>
-            <div className=" flex  items-center gap-3 scale-150 mr-3">
-              {!isNotificationGranted && <button onClick={() => setShowModal(true)} className="button p-1.5 bg-rose-500 text-white rounded-full text-md cursor-pointer"><IoNotificationsOffOutline /></button>}
+            <div className="flex items-center gap-2">
+              {!isNotificationGranted && (
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="p-1.5 bg-rose-50 text-rose-500 border border-rose-200 rounded-full text-base cursor-pointer hover:bg-rose-100 transition-colors"
+                  title="Enable notifications"
+                >
+                  <IoNotificationsOffOutline />
+                </button>
+              )}
               <UserButton />
             </div>
           </>}
         </div>
       </header>
 
-      {showModal && <div className="modal absolute top-0 left-0 bg-white w-full px-6 py-4 flex justify-center items-center flex-col gap- shadow-md">
-        <div className="info flex items-center gap-2">
-          <div className="image ">
-            <img className='rounded-full w-40' src={notification} alt="" />
+      {showModal && (
+        <div className="modal absolute top-0 left-0 bg-[var(--bg-surface)]/95 backdrop-blur-sm w-full px-6 py-5 flex justify-center items-center flex-col gap-4 border-b border-[var(--border-soft)] shadow-[var(--shadow-sm)] z-50">
+          <div className="info flex items-center gap-3">
+            <div className="image">
+              <img className='rounded-full w-16' src={notification} alt="" />
+            </div>
+            <div className="text-sm text-[var(--text-secondary)] text-center">
+              Enable notifications to get instant message alerts 📩
+            </div>
           </div>
-          <div className=" md:text-sm text-center">
-            Enable Notification to get Instant Messages 📩
+          <div className="button flex gap-3">
+            <button onClick={askNotificationPermission} className='px-5 py-2 primary-bg rounded-full text-white text-sm cursor-pointer hover:opacity-90 transition-opacity shadow-[var(--shadow-sm)]'>Enable 😊</button>
+            <button onClick={() => setShowModal(false)} className='px-5 py-2 bg-[var(--bg-hover)] text-[var(--text-secondary)] rounded-full text-sm cursor-pointer hover:text-[var(--text-primary)] transition-colors'>Ignore 🙄</button>
           </div>
         </div>
-        <div className="button space-x-16  md:space-x-8 " >
-          <button onClick={askNotificationPermission} className='px-6 py-2.5 bg-green-600 rounded-full text-white text-sm md:text-xs shadow-lg cursor-pointer hover:opacity-85'>Enable😊</button>
-          <button onClick={() => setShowModal(false)} className='px-6 py-2.5 bg-red-600 rounded-full text-white text-sm md:text-xs shadow-lg cursor-pointer hover:opacity-85'>Ignore🙄</button>
-        </div>
-      </div>}
+      )}
     </>
   )
 }

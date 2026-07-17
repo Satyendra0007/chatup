@@ -98,39 +98,50 @@ export default function SearchUser() {
         <Navbar />
       </div>
 
-      <div className="button p-3 flex  justify-center">
-        <button
-          className={` bg-gray-200 ${!isGroup ? "primary-bg text-white " : ""} flex justify-center items-center gap-2 py-3 w-40 rounded-l-full cursor-pointer shadow-lg transition-all duration-150 ease-in-out`}
-          onClick={() => setIsGroup(false)}
-        >
-          <span>Friend</span>
-          <HiUserAdd />
-        </button>
-        <button
-          className={` bg-gray-300 ${isGroup ? "primary-bg text-white " : ""} flex justify-center items-center gap-2 py-3 w-40 rounded-r-full cursor-pointer shadow-lg transition-all duration-150 ease-in-out`}
-          onClick={() => setIsGroup(true)}
-        >
-          <span>Group</span>
-          <MdGroupAdd />
-        </button>
+      {/* ── Modern segmented control ── */}
+      <div className="button p-3 flex justify-center">
+        <div className="inline-flex bg-[var(--bg-input)] rounded-xl p-1 gap-1 shadow-inner">
+          <button
+            className={`flex items-center gap-1.5 py-2 px-6 rounded-lg text-sm font-medium cursor-pointer transition-all duration-150 ${
+              !isGroup
+                ? "bg-[var(--bg-surface)] text-[var(--text-primary)] shadow-[var(--shadow-sm)]"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+            }`}
+            onClick={() => setIsGroup(false)}
+          >
+            <HiUserAdd className="text-base" />
+            <span>Friend</span>
+          </button>
+          <button
+            className={`flex items-center gap-1.5 py-2 px-6 rounded-lg text-sm font-medium cursor-pointer transition-all duration-150 ${
+              isGroup
+                ? "bg-[var(--bg-surface)] text-[var(--text-primary)] shadow-[var(--shadow-sm)]"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+            }`}
+            onClick={() => setIsGroup(true)}
+          >
+            <MdGroupAdd className="text-base" />
+            <span>Group</span>
+          </button>
+        </div>
       </div>
 
       <div className="box flex flex-col items-center gap-4 ">
 
         {isGroup && <>
           <div className="grid mt-4">
-            <label className='text-sm m-1' htmlFor="name">Group Name  </label>
+            <label className='text-xs font-medium text-[var(--text-secondary)] mb-1.5 ml-1' htmlFor="name">Group Name</label>
             <input
               type="text"
               onChange={(e) => setName(e.target.value)}
               value={name}
-              placeholder='Enter The Group Name '
-              className=' border border-gray-300 w-80 h-12 px-4 rounded-full shadow-lg md:w-96 md:h-11 md:text-sm focus:ring-1 focus:ring-green-500 outline-none transition-all ease-out duration-100 '
+              placeholder='Enter a group name'
+              className='border border-[var(--border-medium)] bg-[var(--bg-surface)] w-80 h-11 px-4 rounded-xl shadow-[var(--shadow-xs)] md:w-96 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] outline-none transition-all ease-out duration-150'
             />
           </div>
 
           <div className="members  ">
-            <div className="heading text-center">Members</div>
+            <div className="heading text-center text-sm font-medium text-[var(--text-primary)]">Members</div>
             <div className="list my-3 px-2 flex items-center gap-2 overflow-scroll hide-scrollbar ">
               {selectedUsers?.length > 0 && selectedUsers.map(user => {
                 return <UserBadge key={user.id} {...user} removeUser={removeUser} />
@@ -141,21 +152,21 @@ export default function SearchUser() {
           <button
             onClick={createConversation}
             disabled={!name || loading}
-            className="px-6 py-3 primary-bg text-white rounded-full cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
+            className="px-6 py-2 primary-bg text-white text-sm rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-opacity font-medium">
             Create Group
           </button>
         </>
         }
 
-        <div className="search flex justify-center items-center w-80 h-12 md:w-96 md:h-11 border border-gray-300 rounded-full my-5 focus-within:ring-1 focus-within:ring-green-500 shadow-lg transition-all ease-out duration-100">
+        <div className="search flex justify-center items-center w-80 h-11 md:w-96 border border-[var(--border-medium)] bg-[var(--bg-surface)] rounded-xl my-5 focus-within:ring-2 focus-within:ring-[var(--accent)] focus-within:border-[var(--accent)] shadow-[var(--shadow-xs)] transition-all ease-out duration-150">
           <input
             type="email"
             onChange={(e) => setSearch(e.target.value)}
             value={search}
-            placeholder='Enter The Email '
-            className=' px-4 md:text-sm outline-none flex-grow min-w-0'
+            placeholder='Search by email'
+            className='px-4 text-sm outline-none flex-grow min-w-0 bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-muted)]'
           />
-          <button disabled={!search || loading} onClick={searchUser} className="p-3 md:p-2 primary-bg text-white text-2xl rounded-full cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed ">
+          <button disabled={!search || loading} onClick={searchUser} className="p-2.5 primary-bg text-white text-lg rounded-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-opacity m-0.5 shadow-sm">
             <LuUserSearch />
           </button>
         </div>

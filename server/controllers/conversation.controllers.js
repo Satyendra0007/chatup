@@ -64,6 +64,7 @@ module.exports.getConversations = async (req, res) => {
         }
       }
     ]);
+
     const response = await Promise.all(conversations.map(async (conversation) => {
       const { _id, isGroup, members, name, lastMessage, groupAdmin, unreadBy } = conversation;
       const decryptedLastMessage = lastMessage
@@ -116,26 +117,4 @@ module.exports.getConversations = async (req, res) => {
   }
 }
 
-
-module.exports.markAsRead = async (req, res) => {
-  const result = validationResult(req)
-  if (!result.isEmpty()) {
-    return res.status(400).json({ error: result.array() })
-  }
-  try {
-    const { conversationId } = matchedData(req)
-    const { userId } = getAuth(req)
-    await Conversation.findByIdAndUpdate(conversationId, {
-      $pull: { unreadBy: userId.toString() }
-    })
-    await Message.updateMany(
-      { conversationId, senderId: { $ne: userId }, seenBy: { $ne: userId } },
-      { $addToSet: { seenBy: userId } }
-    );
-    res.status(200).json({ message: "marked as read" })
-  } catch (error) {
-    console.log(error)
-    res.status(500).json({ message: "Internal Server Error" })
-  }
-}
 

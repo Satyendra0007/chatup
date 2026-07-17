@@ -20,7 +20,19 @@ router.route("/send").post(
     .notEmpty().withMessage("text should not be empty")
     .isString().withMessage("text must be a string")
     .trim(),
+
+  body("tempId")
+    .notEmpty().withMessage("tempId can not be empty")
+    .isString().withMessage("tempid must be a string"),
   messageController.sendMessage
+)
+
+router.route("/markread").post(
+  authenticateUser,
+  body('conversationId')
+    .notEmpty().withMessage("conversation id can't be empty ")
+    .isMongoId().withMessage("conversation id must be a mongodb id"),
+  messageController.markAsRead
 )
 
 router.route("/react/:messageId").put(

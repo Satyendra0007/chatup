@@ -2,6 +2,7 @@ import socket from "@/utils/socket";
 import axios from "axios";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useAxiosClient } from "@/utils/useAxiosClient";
+import { useUser } from "@clerk/clerk-react";
 
 export const ConversationsStore = createContext();
 
@@ -11,6 +12,7 @@ export default function ConversationsWrapper({ children }) {
   const [onlineUsers, setOnlineUsers] = useState([])
   const lastCallRef = useRef(0)
   const axiosClient = useAxiosClient();
+  const { user, isSignedIn } = useUser();
 
   const fetchConversations = async () => {
     let now = new Date().getTime();
@@ -20,6 +22,7 @@ export default function ConversationsWrapper({ children }) {
     lastCallRef.current = now
     setIsConversationLoading(true)
     try {
+      console.log("fetching")
       const response = await axiosClient.get(`${import.meta.env.VITE_SERVER_URL}api/conversation`, {
         withCredentials: true,
       });
@@ -32,36 +35,10 @@ export default function ConversationsWrapper({ children }) {
     }
   }
 
-
-  // const fetchConversations = async () => {
-  //   console.log("fetching...")
-  //   setLoading(true)
-  //   try {
-  //     const response = await axiosClient.get(`${import.meta.env.VITE_SERVER_URL}api/conversation`, {
-  //       withCredentials: true,
-  //     });
-  //     setCoversations(response?.data?.conversations)
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
-  //   setLoading(false)
-  // }
-
-  const markAsUnread = async (conversationId, senderId) => {
-    try {
-      const response = await axiosClient.post(`${import.meta.env.VITE_SERVER_URL}api/conversation/markunread`, {
-        conversationId, senderId
-      }, {
-        withCredentials: true,
-      });
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
   const markAsReadOnServer = async (conversationId) => {
+    console.log("mark conversatio as read on server")
     try {
-      const response = await axiosClient.post(`${import.meta.env.VITE_SERVER_URL}api/conversation/markread`, {
+      const response = await axiosClient.post(`${import.meta.env.VITE_SERVER_URL}api/message/markread`, {
         conversationId
       }, {
         withCredentials: true,
@@ -71,17 +48,19 @@ export default function ConversationsWrapper({ children }) {
     }
   }
 
-  const updateConversation = (payload) => {
+  const updateLastmessageAndUnreadby = (payload) => {
+    console.log("update lastmessage and readby")
     setCoversations(prev =>
       prev.map(conversation =>
-        conversation.conversationId === payload.conversation._id
-          ? { ...conversation, lastMessage: payload.newMessage, unreadBy: payload.conversation.unreadBy }
+        conversation.conversationId === payload.conversationId
+          ? { ...conversation, lastMessage: payload.lastMessage, unreadBy: payload.unreadBy }
           : conversation
       )
     )
   }
 
   const markConversationAsRead = (conversationId, userId) => {
+    console.log("markd conversatin as read ")
     setCoversations(prev =>
       prev.map(conversation =>
         conversation.conversationId === conversationId
@@ -99,8 +78,21 @@ export default function ConversationsWrapper({ children }) {
     return () => socket.off('online-users')
   }, [])
 
+  useEffect(() => {
+    if (isSignedIn && user) {
+      if (!socket.connected) {
+        socket.connect();
+      }
+      socket.emit('setup', user.id);
+    } else {
+      if (socket.connected) {
+        socket.disconnect();
+      }
+    }
+  }, [isSignedIn, user]);
+
   return (
-    <ConversationsStore.Provider value={{ conversations, setCoversations, fetchConversations, isConversationLoading, markAsUnread, markAsReadOnServer, onlineUsers, updateConversation, markConversationAsRead }} >
+    <ConversationsStore.Provider value={{ conversations, setCoversations, fetchConversations, isConversationLoading, markAsReadOnServer, onlineUsers, updateLastmessageAndUnreadby, markConversationAsRead }} >
       {children}
     </ConversationsStore.Provider>
   )

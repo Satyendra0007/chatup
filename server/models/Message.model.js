@@ -24,6 +24,10 @@ const messageSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
+  tempId: {
+    type: String,
+    index: true
+  },
   time: {
     type: Number,
     default: () => Date.now()

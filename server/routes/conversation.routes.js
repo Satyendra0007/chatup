@@ -41,13 +41,6 @@ router.route("/create").post(
   conversationController.createConversation
 )
 
-router.route("/markread").post(
-  authenticateUser,
-  body('conversationId')
-    .notEmpty().withMessage("conversation id can't be empty ")
-    .isMongoId().withMessage("conversation id must be a mongodb id"),
-  conversationController.markAsRead
-)
 
 
 module.exports = router

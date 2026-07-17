@@ -16,7 +16,7 @@ export default function Conversations() {
 
   const { user } = useUser();
   const [selectedConversation, setSelectedConversation] = useState("")
-  const { isConversationLoading, conversations, fetchConversations, updateConversation } = useConversationsStore()
+  const { isConversationLoading, conversations, fetchConversations, updateLastmessageAndUnreadby } = useConversationsStore()
   const location = useLocation();
   const isChatLayout = location.pathname?.startsWith("/chatlayout/")
   const [search, setSearch] = useState("")
@@ -42,6 +42,7 @@ export default function Conversations() {
         break;
     }
 
+    filtered.sort((c1, c2) => c2?.lastMessage?.time - c1?.lastMessage?.time)
     setFilteredConversation(filtered)
   }, [selectedCateogary, search, conversations, user?.id])
 
@@ -54,47 +55,51 @@ export default function Conversations() {
   }, [conversations])
 
   useEffect(() => {
-    const handleReceive = (payload) => {
-      updateConversation(payload);
-      const sender = conversationRef.current.find((conversation) => conversation.conversationId === payload.newMessage.conversationId)
-      if (Notification.permission === "granted") {
-        new Notification(`New Message from ${sender?.name}`, {
-          body: payload.text,
-          icon: sender.imageUrl
-        });
+    const handleUpdateConversation = (payload) => {
+      console.log("runnig update-conversation socket")
+      updateLastmessageAndUnreadby(payload);
+      const sender = conversationRef.current.find((conversation) => conversation.conversationId === payload?.conversationId)
+      if (payload.lastMessage.senderId !== user.id) {
+        const isViewingCurrentChat = document.hasFocus() && location.pathname.includes('/chats') && location.state?.convid === payload.conversationId;
+        
+        if (!isViewingCurrentChat && Notification.permission === "granted") {
+          const notification = new Notification(`New Message from ${sender?.name || "ChatUp"}`, {
+            body: payload.lastMessage.text,
+            icon: sender?.imageUrl || null
+          });
+          
+          notification.onclick = () => {
+            window.focus();
+          };
+        }
       }
     };
 
-    if (!socket.connected) {
-      socket.connect()
-    }
-    socket.emit('setup', user.id);
-    socket.on('recieve-message', handleReceive);
+    socket.on('update-conversation', handleUpdateConversation);
 
     return () => {
-      socket.off('recieve-message', handleReceive);
-      socket.disconnect()
+      socket.off('update-conversation', handleUpdateConversation);
     };
-  }, [user.id]);
+  }, [user?.id]);
 
 
   return (
     <div className="cantainer flex">
       <div className="  w-full md:w-auto relative top-0 hide-scrollbar">
-        <div className='h-[94vh] md:h-screen w-full md:w-80 box-border md:border-r-1 border-gray-400 overflow-scroll hide-scrollbar '>
+        <div className='h-[93vh] md:h-screen w-full md:w-80 box-border md:border-r border-[var(--border-medium)] bg-[var(--bg-surface)] overflow-scroll hide-scrollbar'>
 
-          <div className="heading sticky top-0 left-0 z-40 bg-gradient-to-b from-white/90 via-white/75 to-white/60 py-2 backdrop-blur-xs ">
+          <div className="heading sticky top-0 left-0 z-40 bg-[var(--bg-surface)]/95 backdrop-blur-md border-b border-[var(--border-soft)] py-2">
             <Navbar />
-            <div className="search flex justify-center items-center w-[21rem] md:w-72 mx-auto h-11  border-1 border-green-500 rounded-full my-1 focus-within:ring-1 focus-within:ring-green-600 shadow-sm transition-all ease-out duration-100">
-              <div className="p-3 md:p-2 text-green-600 text-2xl">
+            <div className="search flex justify-center items-center w-[21rem] md:w-72 mx-auto h-11 bg-[var(--bg-input)] border border-[var(--border-soft)] rounded-[20px] my-1 focus-within:bg-[var(--bg-surface)] focus-within:ring-1 focus-within:ring-[var(--accent)] focus-within:border-[var(--accent)] transition-all ease-out duration-200 shadow-[var(--shadow-xs)]">
+              <div className="p-3 md:p-2 text-[var(--text-muted)] text-2xl">
                 <LuUserSearch />
               </div>
               <input
                 type="email"
                 onChange={(e) => setSearch(e.target.value)}
                 value={search}
-                placeholder='Enter Name or Email'
-                className=' md:text-sm outline-none flex-grow min-w-0'
+                placeholder='Search conversations...'
+                className='md:text-sm outline-none flex-grow min-w-0 bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-muted)]'
               />
 
             </div>
@@ -103,7 +108,7 @@ export default function Conversations() {
                 return <button
                   key={cateogary}
                   onClick={() => setSelectedCateogary(cateogary)}
-                  className={`px-4 py-1.5 text-xs md:text-[11px] border border-gray-400 rounded-full cursor-pointer hover:bg-gray-200 ${selectedCateogary === cateogary ? "border-2 border-green-600" : ""} `}>{cateogary}
+                  className={`px-4 py-1.5 text-xs md:text-[11px] rounded-full cursor-pointer transition-colors ${selectedCateogary === cateogary ? "bg-[var(--bg-active)] text-[var(--accent-dark)] border border-[var(--accent-muted)] font-medium" : "border border-[var(--border-medium)] text-[var(--text-secondary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-hover)]"} `}>{cateogary}
                 </button>
               })}
             </div>
@@ -112,7 +117,13 @@ export default function Conversations() {
           <div className="conversations p-1 space-y-1 flex flex-col items-center ">
             {(filteredConversation?.length == 0 && isConversationLoading) && <ConversationSpinner />}
             {(filteredConversation?.length <= 0 && !isConversationLoading)
-              ? <div className="text-center my-3"> No Conversation </div>
+              ? (
+                <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
+                  <div className="w-10 h-10 rounded-full bg-[var(--bg-hover)] flex items-center justify-center text-[var(--text-muted)] text-xl">💬</div>
+                  <p className="text-sm font-medium text-[var(--text-secondary)]">No conversations</p>
+                  <p className="text-xs text-[var(--text-muted)]">Start one with the + button</p>
+                </div>
+              )
               : filteredConversation?.map((conversation, index) => {
                 return <Conversation key={index} {...conversation}
                   selectedConversation={selectedConversation}
@@ -121,14 +132,16 @@ export default function Conversations() {
               })}
           </div>
 
-          <div className="button absolute right-6 md:bottom-8 bottom-12 z-10 flex flex-col gap-3 bg-transparent justify-center items-center ">
+          <div className="button absolute right-4 md:bottom-6 bottom-10 z-10 flex flex-col gap-3 bg-transparent justify-center items-center">
             <Link to="/aichat">
-              <div className='p-2  bg-white border border-green-400 rounded-full cursor-pointer'>
-                <img className='w-8' src={ai} alt="" />
+              <div className='p-2 bg-[var(--bg-surface)] border border-[var(--border-soft)] rounded-full cursor-pointer hover:bg-[var(--bg-hover)] transition-all shadow-[var(--shadow-md)] hover:-translate-y-0.5'>
+                <img className='w-7' src={ai} alt="AI Chat" />
               </div>
             </Link>
             <Link to="/chatlayout/search">
-              <button className='p-3 primary-bg text-white text-3xl rounded-full cursor-pointer'><HiUserAdd /></button>
+              <button className='p-3.5 primary-bg text-white text-2xl rounded-[1.25rem] cursor-pointer shadow-[var(--shadow-fab)] hover:opacity-95 transition-all hover:-translate-y-0.5 active:scale-95 active:translate-y-0'>
+                <HiUserAdd />
+              </button>
             </Link>
           </div>
         </div>
@@ -141,9 +154,9 @@ export default function Conversations() {
               <div className="absolute inset-0 primary-bg rounded-full opacity-30 blur-2xl"></div>
               <div className="absolute inset-0 primary-bg rounded-full opacity-50"></div>
 
-              <div className="absolute top-56 left-1/2 z-20 w-48 bg-white/80 backdrop-blur-sm shadow-xl rounded-xl p-1 flex items-center gap-2 -translate-y-8 ">
+              <div className="absolute top-56 left-1/2 z-20 w-48 bg-[var(--bg-surface)]/95 backdrop-blur-sm shadow-[var(--shadow-md)] border border-[var(--border-soft)] rounded-xl p-1 flex items-center gap-2 -translate-y-8 ">
                 <img className='w-8 h-8 rounded-full' src={userimage} alt="User avatar" />
-                <p className='text-[11px] text-left text-gray-700'>Select a chat to start messaging! ❤️</p>
+                <p className='text-[11px] text-left text-[var(--text-secondary)] font-medium'>Select a chat to start messaging! ❤️</p>
               </div>
               <img
                 className='absolute bottom-0 left-1/2 -translate-x-1/2 h-[95%] object-contain'
@@ -156,7 +169,7 @@ export default function Conversations() {
               <h2 className='font-bold text-xl primary-bg text-transparent bg-clip-text'>
                 Your Personal Messaging Space
               </h2>
-              <p className="text-gray-500 mt-1 text-sm">Choose a conversation from the left to see the messages.</p>
+              <p className="text-[var(--text-secondary)] mt-1.5 text-sm">Choose a conversation from the left to see the messages.</p>
             </div>
           </div>
         </div>

@@ -3,15 +3,16 @@ import { MdDeleteOutline } from "react-icons/md";
 
 export default function UserBadge({ id, firstName, imageUrl, email, removeUser }) {
   return (
-    <div className=' flex gap-1 flex-col items-center border p-3  rounded-lg shadow-md relative shrink-0 '>
-      <div onClick={() => removeUser(id)} className="delete absolute top-1 right-1  cursor-pointer text-red-500"><MdDeleteOutline /></div>
-      <div className="img">
-        <img className='w-16 h-16 md:w-11 md:h-11 rounded-full' src={imageUrl} alt="" />
-      </div>
-      <div className="info text-center">
-        <div className="name text-xs md:text-[10px] capitalize">{firstName}</div>
-        {/* <div className="email text-[10px] font-semibold">{email}</div> */}
-      </div>
+    <div className='flex flex-col items-center gap-1 bg-[var(--bg-surface)] border border-[var(--border-medium)] p-2.5 rounded-xl shadow-[var(--shadow-sm)] relative shrink-0'>
+      <button
+        onClick={() => removeUser(id)}
+        className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-red-600 transition-colors"
+        title="Remove"
+      >
+        <span className="text-[9px] leading-none">✕</span>
+      </button>
+      <img className='w-10 h-10 rounded-full object-cover' src={imageUrl} alt="" />
+      <div className="name text-[10px] text-[var(--text-secondary)] font-medium capitalize text-center">{firstName}</div>
     </div>
   )
 }

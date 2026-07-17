@@ -6,14 +6,9 @@ import SearchUser from "./Pages/SearchUser";
 import Chats from "./Pages/Chats"
 import ChatLayout from "./Pages/ChatLayout";
 import AiChat from "./Pages/AiChat";
-import {
-  SignedIn,
-  SignedOut,
-} from '@clerk/clerk-react'
-
+import { SignedIn, SignedOut } from '@clerk/clerk-react'
 
 function App() {
-
   return (
     <>
       <RedirectAfterSignIn />
