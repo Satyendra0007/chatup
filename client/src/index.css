@@ -99,15 +99,18 @@ body {
   animation: online-pulse 2.2s ease-in-out infinite;
 }
 
-/* Hover-reveal quick reactions */
-.chat-bubble-group:hover .hover-reveal {
-  opacity: 1;
-  pointer-events: auto;
-}
+/* Hover-reveal quick reactions (Desktop only) */
 .hover-reveal {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.14s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .chat-bubble-group:hover .hover-reveal {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 /* Date separator hairlines */

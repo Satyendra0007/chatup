@@ -44,6 +44,33 @@ export default function Chats() {
     (onlineUsers.includes(member.id) && member.id !== user.id)
   )
 
+  const [viewportHeight, setViewportHeight] = useState(window.visualViewport ? window.visualViewport.height : window.innerHeight);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.visualViewport) {
+        setViewportHeight(window.visualViewport.height);
+      } else {
+        setViewportHeight(window.innerHeight);
+      }
+      // Keep scroll at bottom when keyboard opens/closes
+      if (chatRef.current) {
+        chatRef.current.scrollTo({
+          top: chatRef.current.scrollHeight,
+          behavior: "instant",
+        });
+      }
+    };
+
+    window.visualViewport?.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.visualViewport?.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   const updateMessagelistAndLastmessage = (messageId, convid) => {
     const lastMessage = conversations.find(({ conversationId }) => conversationId === convid)?.lastMessage
 
@@ -328,8 +355,11 @@ export default function Chats() {
 
 
   return (
-    <div className="flex flex-col h-[93vh] md:h-screen relative overflow-hidden bg-[var(--bg-page)]">
-      <div className="header flex py-2 px-3 md:p-1.5 bg-[var(--bg-surface)]/95 backdrop-blur-md border-b border-[var(--border-soft)] items-center justify-between z-20 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+    <div 
+      className="flex flex-col fixed inset-0 md:static w-full md:h-screen bg-[var(--bg-page)] z-50 md:z-auto overscroll-none overflow-hidden"
+      style={{ height: viewportHeight ? `${viewportHeight}px` : '100dvh' }}
+    >
+      <div className="header shrink-0 flex py-2 px-3 md:p-1.5 bg-[var(--bg-surface)]/95 backdrop-blur-md border-b border-[var(--border-soft)] items-center justify-between z-20 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
         <div className="user flex items-center">
           <Link to="/conversation">
             <div className="text-lg h-10 w-10 flex-shrink-0 flex justify-center items-center hover:bg-gray-100 rounded-full text-gray-500 transition-colors md:hidden">
@@ -402,7 +432,7 @@ export default function Chats() {
         {isGroup && <MessageSeenByUser seenBy={selectedChat?.seenBy} members={members} />}
       </div>
 
-      <div ref={chatRef} className="chats h-full p-2 overflow-scroll hide-scrollbar pb-4 space-y-3">
+      <div ref={chatRef} className="chats flex-1 min-h-0 p-2 overflow-y-auto hide-scrollbar pb-4 space-y-3">
         {isChatLoading
           ? <ChatSkeleton />
           : (messages?.length === 0)
@@ -449,7 +479,7 @@ export default function Chats() {
         {isTyping && <TypingIndicator />}
       </div>
 
-      <div className="chatbox sticky bottom-3 z-40 left-0 w-full px-3">
+      <div className="chatbox shrink-0 w-full px-3 pb-3 pt-1 bg-[var(--bg-page)] relative z-40">
         {isEditingMessage && (
           <div className="mb-1 mx-1 px-3 py-1.5 bg-[var(--bg-active)] border border-[var(--border-soft)] rounded-xl flex items-center justify-between shadow-[var(--shadow-xs)]">
             <p className="text-[10px] text-[var(--accent-dark)] font-medium">✏️ Editing message</p>
@@ -466,7 +496,7 @@ export default function Chats() {
             onKeyDown={handleKeyDown}
             rows={1}
             placeholder="Message..."
-            className="flex-grow min-w-0 bg-transparent outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] resize-none py-2.5 hide-scrollbar leading-relaxed"
+            className="flex-grow min-w-0 bg-transparent outline-none text-base md:text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] resize-none py-2.5 hide-scrollbar leading-relaxed"
             style={{ maxHeight: '120px' }}
           />
           <button
