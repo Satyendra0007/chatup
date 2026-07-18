@@ -14,7 +14,6 @@ import { GoInfo } from "react-icons/go";
 import ChatInformation from "@/Component/ChatInformation";
 import { useAxiosClient } from "@/utils/useAxiosClient";
 import ChatSkeleton from "@/spinners/ChatSkeleton";
-import OptionBar from "@/Component/OptionBar";
 import MessageSeenByUser from "@/Component/MessageSeenByUser";
 
 export default function Chats() {
@@ -423,9 +422,7 @@ export default function Chats() {
 
       {/* ---------------Appears when (selectedChat?.isUserMessage) ---------------- */}
 
-      <div className={`option-bar absolute right-0 w-full  px-3 ${(selectedChat?.isUserMessage) ? "top-1" : "-top-[100%]"} transition-all duration-500 ease-in-out`}>
-        <OptionBar deleteMessage={deleteMessage} id={selectedChat?.id} text={selectedChat?.text} setText={setText} setShowSeenBy={setShowSeenBy} isGroup={isGroup} setIsEditingMessage={setIsEditingMessage} />
-      </div>
+      {/* OptionBar has been replaced by the contextual FloatingActionMenu in Chat.jsx */}
 
       {/* ---------------Appears when (isGroup && selectedChat && showSeenBy) ---------------- */}
       <div className={`seebBy absolute z-50 left-0 w-full ${(selectedChat && showSeenBy && isGroup) ? "bottom-0" : "-bottom-[100%]"} transition-all duration-500 ease-in-out `}>
@@ -472,6 +469,9 @@ export default function Chats() {
                     setSelectedChat={setSelectedChat}
                     addReaction={addReaction}
                     deleteMessage={deleteMessage}
+                    setText={setText}
+                    setShowSeenBy={setShowSeenBy}
+                    setIsEditingMessage={setIsEditingMessage}
                   />
                 );
                 return acc;

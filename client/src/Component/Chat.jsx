@@ -4,18 +4,22 @@ import { IoIosStar } from "react-icons/io";
 import { useLongPress } from "use-long-press";
 import { useRef } from "react";
 import Reactions from "./Reactions";
+import FloatingActionMenu from "./FloatingActionMenu";
 
-export default function Chat({ _id, text, time, senderId, seenBy, receiverId, reaction, members, isGroup, groupAdmin, selectedChat, setSelectedChat, addReaction }) {
+export default function Chat({ _id, text, time, senderId, seenBy, receiverId, reaction, members, isGroup, groupAdmin, selectedChat, setSelectedChat, addReaction, deleteMessage, setText, setShowSeenBy, setIsEditingMessage }) {
   const { user } = useUser();
   const isUser = (user.id === senderId);
   const isSeen = seenBy?.includes(receiverId) || seenBy?.length === (members?.length - 1)
   const senderInfo = members?.find(member => member.id === senderId)
   const isThisChatSelected = selectedChat?.id === _id
   const reactionMenu = useRef(null)
+  const containerRef = useRef(null)
 
   const handleLongPress = useLongPress(() => {
     const isUserMessage = senderId === user.id;
     setSelectedChat({ id: _id, isUserMessage, seenBy, text })
+  }, {
+    threshold: 400
   })
 
   const convertToIST = (ms) => {
@@ -34,12 +38,17 @@ export default function Chat({ _id, text, time, senderId, seenBy, receiverId, re
   });
 
   return (
-    <div className={`relative chat-message message-appear ${reaction ? "mb-2.5" : ""}`}>
+    <div ref={containerRef} className={`relative chat-message message-appear ${reaction ? "mb-2.5" : ""}`}>
       {isUser ? (
         /* ── Sender bubble (right) ── */
         <div
           className={`chat-bubble-group flex justify-end select-none px-2 items-end gap-1 ${isThisChatSelected ? "bg-black/[0.04] rounded-xl" : ""}`}
           {...handleLongPress()}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            const isUserMessage = senderId === user.id;
+            setSelectedChat({ id: _id, isUserMessage, seenBy, text });
+          }}
         >
           {/* Hover quick reactions */}
           <div className="hover-reveal flex items-center gap-0.5 self-end mb-0.5">
@@ -75,6 +84,11 @@ export default function Chat({ _id, text, time, senderId, seenBy, receiverId, re
         <div
           className={`chat-bubble-group flex gap-1.5 select-none px-2 items-end ${isThisChatSelected ? "bg-black/[0.04] rounded-xl" : ""}`}
           {...handleLongPress()}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            const isUserMessage = senderId === user.id;
+            setSelectedChat({ id: _id, isUserMessage, seenBy, text });
+          }}
         >
           {isGroup && (
             <div className="flex-shrink-0 self-start mt-0.5">
@@ -122,6 +136,21 @@ export default function Chat({ _id, text, time, senderId, seenBy, receiverId, re
         <div ref={reactionMenu} className="reaction absolute -top-15 md:-top-12 left-auto z-50 w-[21rem] md:w-72">
           <Reactions addReaction={addReaction} id={_id} prevReaction={reaction} />
         </div>
+      )}
+
+      {/* Floating Action Menu */}
+      {isThisChatSelected && (
+        <FloatingActionMenu
+          id={_id}
+          text={text}
+          isUserMessage={isUser}
+          isGroup={isGroup}
+          deleteMessage={deleteMessage}
+          setText={setText}
+          setShowSeenBy={setShowSeenBy}
+          setIsEditingMessage={setIsEditingMessage}
+          containerRef={containerRef}
+        />
       )}
     </div>
   )
