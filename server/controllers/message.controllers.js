@@ -28,7 +28,10 @@ module.exports.sendMessage = async (req, res) => {
   try {
     const { userId } = getAuth(req);
     const data = matchedData(req)
-    let newMessage = await Message.create({ ...data, senderId: userId })
+    // Include replyTo only when it's provided (avoid saving empty objects)
+    const messageData = { ...data, senderId: userId };
+    if (!messageData.replyTo?.messageId) delete messageData.replyTo;
+    let newMessage = await Message.create(messageData)
     const currentConversation = await Conversation.findById(data.conversationId)
     const otherUsers = currentConversation.members.filter(id => id !== userId)
     const conversation = await Conversation.findByIdAndUpdate(data.conversationId, {

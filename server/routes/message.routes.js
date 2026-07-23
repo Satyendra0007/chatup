@@ -24,6 +24,10 @@ router.route("/send").post(
   body("tempId")
     .notEmpty().withMessage("tempId can not be empty")
     .isString().withMessage("tempid must be a string"),
+  body("replyTo").optional().isObject().withMessage("replyTo must be an object"),
+  body("replyTo.messageId").optional().isMongoId().withMessage("replyTo.messageId must be a valid MongoDB id"),
+  body("replyTo.senderId").optional().isString().withMessage("replyTo.senderId must be a string"),
+  body("replyTo.text").optional().isString().trim().withMessage("replyTo.text must be a string"),
   messageController.sendMessage
 )
 

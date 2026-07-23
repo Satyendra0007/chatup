@@ -55,8 +55,34 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─────────────────────────────────────────
+   Viewport height system
+   Uses CSS custom property --app-h updated by JS (visualViewport API).
+   Fallback chain: --app-h → 100dvh → 100vh
+   html/body are locked overflow:hidden so the page itself never scrolls.
+   Only designated scroll containers (chat list, message list) scroll.
+───────────────────────────────────────── */
+html {
+  height: 100%;
+  overflow: hidden;
+  /* Prevents iOS bounce-scroll on the page level */
+  overscroll-behavior: none;
+}
+
 body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
   background-color: var(--bg-page);
+  /* Initial value — JS will update this on every visualViewport resize */
+  --app-h: 100dvh;
+}
+
+#root {
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ─────────────────────────────────────────
@@ -97,6 +123,18 @@ body {
 }
 .online-ring {
   animation: online-pulse 2.2s ease-in-out infinite;
+}
+
+/* Reply scroll highlight — briefly flashes when navigating to an original message */
+@keyframes reply-flash {
+  0%   { background-color: transparent; }
+  20%  { background-color: rgba(13, 148, 136, 0.15); }
+  80%  { background-color: rgba(13, 148, 136, 0.15); }
+  100% { background-color: transparent; }
+}
+.reply-highlight {
+  animation: reply-flash 1.4s ease-in-out both;
+  border-radius: 12px;
 }
 
 /* Hover-reveal quick reactions (Desktop only) */

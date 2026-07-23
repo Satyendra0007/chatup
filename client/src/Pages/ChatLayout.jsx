@@ -3,18 +3,19 @@ import Conversations from './Conversations';
 
 export default function ChatLayout() {
   return (
-    <div>
-      {/*---------------------- Chat layout for sm devices------------------------- */}
-      <div className="md:hidden">
+    // h-full fills the App.jsx shell (var(--app-h)) — never independently sets a height
+    <div className="h-full flex overflow-hidden">
+      {/* Mobile: show only the active child route */}
+      <div className="md:hidden h-full w-full">
         <Outlet />
       </div>
 
-      {/*----------------- Chat layout for md devices ------------------------- */}
-      <div className=" hidden  md:flex ">
-        <div className="left md:relative">
+      {/* Desktop: side-by-side split layout */}
+      <div className="hidden md:flex h-full w-full overflow-hidden">
+        <div className="left md:relative flex-shrink-0">
           <Conversations />
         </div>
-        <div className="right flex-grow-1">
+        <div className="right flex-1 min-w-0 overflow-hidden">
           <Outlet />
         </div>
       </div>

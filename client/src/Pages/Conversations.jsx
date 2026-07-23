@@ -11,6 +11,8 @@ import socket from '@/utils/socket';
 import { useUser } from '@clerk/clerk-react';
 import { LuUserSearch } from "react-icons/lu";
 import ai from "../assets/ai.gif"
+import { motion, AnimatePresence } from "motion/react";
+import { staggerContainer, hoverScale, tapScale } from "@/utils/animations";
 
 export default function Conversations() {
 
@@ -61,13 +63,13 @@ export default function Conversations() {
       const sender = conversationRef.current.find((conversation) => conversation.conversationId === payload?.conversationId)
       if (payload.lastMessage.senderId !== user.id) {
         const isViewingCurrentChat = document.hasFocus() && location.pathname.includes('/chats') && location.state?.convid === payload.conversationId;
-        
+
         if (!isViewingCurrentChat && Notification.permission === "granted") {
           const notification = new Notification(`New Message from ${sender?.name || "ChatUp"}`, {
             body: payload.lastMessage.text,
             icon: sender?.imageUrl || null
           });
-          
+
           notification.onclick = () => {
             window.focus();
           };
@@ -84,9 +86,9 @@ export default function Conversations() {
 
 
   return (
-    <div className="cantainer flex">
-      <div className="  w-full md:w-auto relative top-0 hide-scrollbar">
-        <div className='h-[93vh] md:h-screen w-full md:w-80 box-border md:border-r border-[var(--border-medium)] bg-[var(--bg-surface)] overflow-scroll hide-scrollbar'>
+    <div className="cantainer flex h-full">
+      <div className="w-full md:w-auto relative top-0 h-full flex flex-col">
+        <div className='h-full w-full md:w-80 box-border md:border-r border-[var(--border-medium)] bg-[var(--bg-surface)] overflow-y-auto hide-scrollbar flex flex-col'>
 
           <div className="heading sticky top-0 left-0 z-40 bg-[var(--bg-surface)]/95 backdrop-blur-md border-b border-[var(--border-soft)] py-2">
             <Navbar />
@@ -114,7 +116,12 @@ export default function Conversations() {
             </div>
           </div>
 
-          <div className="conversations p-1 space-y-1 flex flex-col items-center ">
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+            className="conversations p-1 space-y-1 flex flex-col items-center "
+          >
             {(filteredConversation?.length == 0 && isConversationLoading) && <ConversationSpinner />}
             {(filteredConversation?.length <= 0 && !isConversationLoading)
               ? (
@@ -124,24 +131,35 @@ export default function Conversations() {
                   <p className="text-xs text-[var(--text-muted)]">Start one with the + button</p>
                 </div>
               )
-              : filteredConversation?.map((conversation, index) => {
-                return <Conversation key={index} {...conversation}
-                  selectedConversation={selectedConversation}
-                  setSelectedConversation={setSelectedConversation}
-                />
-              })}
-          </div>
+              : <AnimatePresence mode="popLayout">
+                {filteredConversation?.map((conversation, index) => {
+                  return <Conversation key={conversation.conversationId || index} {...conversation}
+                    selectedConversation={selectedConversation}
+                    setSelectedConversation={setSelectedConversation}
+                  />
+                })}
+              </AnimatePresence>
+            }
+          </motion.div>
 
           <div className="button absolute right-4 md:bottom-6 bottom-10 z-10 flex flex-col gap-3 bg-transparent justify-center items-center">
             <Link to="/aichat">
-              <div className='p-2 bg-[var(--bg-surface)] border border-[var(--border-soft)] rounded-full cursor-pointer hover:bg-[var(--bg-hover)] transition-all shadow-[var(--shadow-md)] hover:-translate-y-0.5'>
+              <motion.div
+                whileHover={hoverScale.scale}
+                whileTap={tapScale.scale}
+                className='p-2 bg-[var(--bg-surface)] border border-[var(--border-soft)] rounded-full cursor-pointer transition-all shadow-[var(--shadow-md)]'
+              >
                 <img className='w-7' src={ai} alt="AI Chat" />
-              </div>
+              </motion.div>
             </Link>
             <Link to="/chatlayout/search">
-              <button className='p-3.5 primary-bg text-white text-2xl rounded-[1.25rem] cursor-pointer shadow-[var(--shadow-fab)] hover:opacity-95 transition-all hover:-translate-y-0.5 active:scale-95 active:translate-y-0'>
+              <motion.button
+                whileHover={hoverScale.scale}
+                whileTap={tapScale.scale}
+                className='p-3.5 primary-bg text-white text-2xl rounded-[1.25rem] cursor-pointer shadow-[var(--shadow-fab)] transition-all'
+              >
                 <HiUserAdd />
-              </button>
+              </motion.button>
             </Link>
           </div>
         </div>

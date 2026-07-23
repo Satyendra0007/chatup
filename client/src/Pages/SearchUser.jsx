@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import { useUser } from "@clerk/clerk-react";
 import { useAxiosClient } from "@/utils/useAxiosClient";
 import Spinner from "@/spinners/Spinner";
+import useOnlineStatus from "@/hooks/useOnlineStatus";
 
 
 export default function SearchUser() {
@@ -22,8 +23,13 @@ export default function SearchUser() {
   const [selectedUsers, setSelectedUsers] = useState([])
   const [name, setName] = useState("")
   const axiosClient = useAxiosClient();
+  const isOnlineContext = useOnlineStatus();
 
   const searchUser = async () => {
+    if (!isOnlineContext) {
+      toast.error("No internet connection. Reconnect to continue.");
+      return;
+    }
     setLoading(true)
     try {
       const response = await axiosClient.get(`${import.meta.env.VITE_SERVER_URL}api/user/search?email=${search}`, {
@@ -40,6 +46,10 @@ export default function SearchUser() {
   }
 
   const createConversation = async (members) => {
+    if (!isOnlineContext) {
+      toast.error("No internet connection. Reconnect to continue.");
+      return;
+    }
     setLoading(true)
     let data;
     if (!isGroup) {
@@ -151,7 +161,7 @@ export default function SearchUser() {
 
           <button
             onClick={createConversation}
-            disabled={!name || loading}
+            disabled={!name || loading || !isOnlineContext}
             className="px-6 py-2 primary-bg text-white text-sm rounded-xl cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-opacity font-medium">
             Create Group
           </button>
@@ -166,7 +176,7 @@ export default function SearchUser() {
             placeholder='Search by email'
             className='px-4 text-sm outline-none flex-grow min-w-0 bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-muted)]'
           />
-          <button disabled={!search || loading} onClick={searchUser} className="p-2.5 primary-bg text-white text-lg rounded-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-opacity m-0.5 shadow-sm">
+          <button disabled={!search || loading || !isOnlineContext} onClick={searchUser} className="p-2.5 primary-bg text-white text-lg rounded-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-opacity m-0.5 shadow-sm">
             <LuUserSearch />
           </button>
         </div>

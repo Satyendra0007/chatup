@@ -2,6 +2,8 @@ import { useNavigate } from "react-router-dom";
 import userimage from "../assets/user.png";
 import { useUser } from "@clerk/clerk-react";
 import { useConversationsStore } from "@/Context/ConversationsStore";
+import { motion } from "motion/react";
+import { staggerItemFadeUp } from "@/utils/animations";
 
 export default function Conversation({
   name,
@@ -61,7 +63,9 @@ export default function Conversation({
   };
 
   return (
-    <div
+    <motion.div
+      variants={staggerItemFadeUp}
+      layout
       onClick={() => handleOnClick(conversationId)}
       className={`group flex items-center w-full md:w-80 px-3 py-2 md:py-1.5 cursor-pointer transition-all duration-150 border-l-2 ${
         isSelected
@@ -121,6 +125,6 @@ export default function Conversation({
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

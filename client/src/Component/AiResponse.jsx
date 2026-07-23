@@ -1,41 +1,87 @@
 import "../style/markdown.css"
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import ai from "../assets/ai.gif"
+import ai from "../assets/ai.gif";
 import { FaRegCopy } from "react-icons/fa6";
 import { MdDeleteOutline } from "react-icons/md";
-import { useUser } from "@clerk/clerk-react"
+import { useUser } from "@clerk/clerk-react";
+import { motion } from "motion/react";
+import { messageAppear } from "@/utils/animations";
 
 export default function AiResponse({ _id, prompt, response, handleCopy, deleteResponse }) {
-  const { user } = useUser()
+  const { user } = useUser();
 
   return (
-    <div className='space-y-3'>
-      <div className="prompt flex justify-end items-center gap-3">
-        <div className="text max-w-[85%] md:max-w-[75%] min-w-24 md:min-w-32 bg-green-200 px-3 py-2  rounded-2xl rounded-tr-none  md:text-sm">
-          <p>{prompt}</p>
+    <div className="space-y-2.5">
+      {/* ── User prompt bubble (right) ── */}
+      <motion.div
+        {...messageAppear(true)}
+        className="flex justify-end items-end gap-2"
+      >
+        <div
+          className="text-white text-xs md:text-[10px] leading-snug max-w-[78%] rounded-2xl rounded-tr-[4px] px-2.5 py-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.15)]"
+          style={{ backgroundColor: 'var(--bubble-out-bg)' }}
+        >
+          <p className="whitespace-pre-wrap break-words">{prompt}</p>
         </div>
-        <div className="imgage">
-          <img className="w-8 h-8 rounded-full" src={user?.imageUrl} alt="" />
-        </div>
-      </div>
-      {response && <div className="response flex md:ml-5 gap-2">
-        <div className="image">
-          <img className="w-6 md:w-8 rounded-full flex-shrink-0" src={ai} alt="" />
-        </div>
-        <div className="text  max-w-[85%] md:max-w-[75%] bg-gray-100 p-3 rounded-sm ">
-          <div className="markdown max-w-none">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {response}
-            </ReactMarkdown>
-          </div>
-          <div className="button text-right space-x-2 py-2">
-            <button onClick={() => deleteResponse(_id)} className="p-2 border rounded-full border-gray-400 cursor-pointer hover:bg-gray-200"><MdDeleteOutline /></button>
-            <button onClick={() => handleCopy(response)} className="p-2 border rounded-full border-gray-400 cursor-pointer hover:bg-gray-200"><FaRegCopy /></button>
-          </div>
-        </div>
-      </div>}
+        <img
+          className="w-6 h-6 rounded-full object-cover ring-1 ring-black/[0.06] flex-shrink-0 self-end"
+          src={user?.imageUrl}
+          alt=""
+        />
+      </motion.div>
 
+      {/* ── AI response bubble (left) ── */}
+      {response && (
+        <motion.div
+          {...messageAppear(false)}
+          className="flex items-end gap-2"
+        >
+          <img
+            className="w-6 h-6 rounded-full object-cover ring-1 ring-black/[0.06] flex-shrink-0 self-end"
+            src={ai}
+            alt="AI"
+          />
+          <div
+            className="max-w-[80%] rounded-2xl rounded-tl-[4px] px-2.5 py-2 shadow-[0_1px_2px_rgba(0,0,0,0.06)] border border-black/[0.07]"
+            style={{ backgroundColor: 'var(--bubble-in-bg)', color: 'var(--bubble-in-text)' }}
+          >
+            {/* Sender label */}
+            <span className="text-[9px] md:text-[8px] font-semibold mb-0.5 block" style={{ color: 'var(--accent)' }}>
+              AI Assistant
+            </span>
+
+            {/* Markdown content */}
+            <div className="markdown max-w-none text-xs md:text-[11px] leading-relaxed">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {response}
+              </ReactMarkdown>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex items-center justify-end gap-1.5 mt-2 pt-1.5 border-t border-black/[0.06]">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleCopy(response)}
+                title="Copy response"
+                className="w-7 h-7 rounded-full flex items-center justify-center border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700 hover:border-slate-300 transition-colors cursor-pointer text-sm"
+              >
+                <FaRegCopy />
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => deleteResponse(_id)}
+                title="Delete"
+                className="w-7 h-7 rounded-full flex items-center justify-center border border-red-200 text-red-400 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-colors cursor-pointer text-base"
+              >
+                <MdDeleteOutline />
+              </motion.button>
+            </div>
+          </div>
+        </motion.div>
+      )}
     </div>
-  )
+  );
 }

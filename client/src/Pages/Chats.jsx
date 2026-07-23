@@ -15,6 +15,10 @@ import ChatInformation from "@/Component/ChatInformation";
 import { useAxiosClient } from "@/utils/useAxiosClient";
 import ChatSkeleton from "@/spinners/ChatSkeleton";
 import MessageSeenByUser from "@/Component/MessageSeenByUser";
+import ReplyComposer from "@/Component/ReplyComposer";
+import { motion, AnimatePresence } from "motion/react";
+import { slideInRight, hoverScale, tapScale } from "@/utils/animations";
+import useOnlineStatus from "@/hooks/useOnlineStatus";
 
 export default function Chats() {
   const { user } = useUser();
@@ -27,48 +31,28 @@ export default function Chats() {
   const [showSeenBy, setShowSeenBy] = useState(false)
   const [selectedChat, setSelectedChat] = useState(null)
   const [isEditingMessage, setIsEditingMessage] = useState(false)
+  const [replyingTo, setReplyingTo] = useState(null)   // { messageId, senderId, text }
+  const [highlightedId, setHighlightedId] = useState(null)
   const { name, imageUrl, receiverId, isGroup, members, groupAdmin, convid } = location.state || {};
-  const { setCoversations, conversations, onlineUsers, markAsReadOnServer, markConversationAsRead, updateLastmessageAndUnreadby } = useConversationsStore()
+  const { setCoversations, conversations, onlineUsers, markAsReadOnServer, markConversationAsRead } = useConversationsStore()
   const chatRef = useRef(null);
   const textareaRef = useRef(null);
+  const messageRefs = useRef({});   // { [messageId]: HTMLElement }
   const lastTypingTimeRef = useRef(null)
   const typingTimeOutRef = useRef(null)
   const [isTyping, setIsTyping] = useState(false)
   const isOnline = onlineUsers?.includes(receiverId)
   const TYPING_TIMEOUT = 3000;
   const axiosClient = useAxiosClient();
+  const isOnlineContext = useOnlineStatus();
   let typing = false;
   const newLastMessageRef = useRef(null)
   const onlineGroupUsers = members?.filter(member =>
     (onlineUsers.includes(member.id) && member.id !== user.id)
   )
 
-  const [viewportHeight, setViewportHeight] = useState(window.visualViewport ? window.visualViewport.height : window.innerHeight);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.visualViewport) {
-        setViewportHeight(window.visualViewport.height);
-      } else {
-        setViewportHeight(window.innerHeight);
-      }
-      // Keep scroll at bottom when keyboard opens/closes
-      if (chatRef.current) {
-        chatRef.current.scrollTo({
-          top: chatRef.current.scrollHeight,
-          behavior: "instant",
-        });
-      }
-    };
-
-    window.visualViewport?.addEventListener("resize", handleResize);
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.visualViewport?.removeEventListener("resize", handleResize);
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  // Viewport height is managed globally via --app-h CSS custom property (main.jsx)
+  // No per-component state needed — the global listener handles keyboard/address bar changes
 
   const updateMessagelistAndLastmessage = (messageId, convid) => {
     const lastMessage = conversations.find(({ conversationId }) => conversationId === convid)?.lastMessage
@@ -81,12 +65,10 @@ export default function Chats() {
     setMessages(prev => {
       const updatedMessages = prev.filter(message => message._id !== messageId)
       newLastMessageRef.current = updatedMessages.at(-1) || null
-      console.log(newLastMessageRef.current)
       return updatedMessages
     })
-    console.log(newLastMessageRef.current)
     setCoversations(((prev) => prev.map((conversation) => (conversation.conversationId === convid)
-      ? { ...conversation, lastMessage: newMessage }
+      ? { ...conversation, lastMessage: newLastMessageRef.current }
       : conversation)
     ))
   }
@@ -132,6 +114,19 @@ export default function Chats() {
     }
   }, [text]);
 
+  // ── Scroll helpers ──────────────────────────────────────────────────────
+  const scrollToBottom = (behavior = 'smooth') => {
+    if (chatRef.current) {
+      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior });
+    }
+  };
+
+  const isNearBottom = () => {
+    if (!chatRef.current) return true;
+    const { scrollTop, scrollHeight, clientHeight } = chatRef.current;
+    return scrollHeight - scrollTop - clientHeight < 150;
+  };
+
   const fetchMessages = async () => {
     setIsChatLoading(true)
     try {
@@ -140,6 +135,9 @@ export default function Chats() {
       });
       setMessages(response?.data)
       socket.emit('seen-message', { conversationId: convid, userId: user?.id })
+      // After data loads and React renders the messages, jump instantly to the bottom
+      // Using requestAnimationFrame ensures the DOM has been updated before we measure
+      requestAnimationFrame(() => scrollToBottom('instant'));
     } catch (error) {
       console.log(error)
     }
@@ -149,19 +147,40 @@ export default function Chats() {
   }
 
   const sendMessage = async () => {
-    if (text.trim().length === 0) return;
+    if (!isOnlineContext) {
+      toast.error("No internet connection. Reconnect to continue.");
+      return;
+    }
+    if (text.trim().length === 0 || loading) return;
     setLoading(true)
     const tempId = crypto.randomUUID();
     const dummyText = text.trim();
-    setMessages(prev => [...prev, { text: dummyText, _id: tempId, senderId: user?.id, time: new Date().getTime() }])
+    const currentReplyTo = replyingTo ? { ...replyingTo } : null;
+
+    // Optimistic update — show message immediately
+    setMessages(prev => [...prev, {
+      text: dummyText,
+      _id: tempId,
+      senderId: user?.id,
+      time: new Date().getTime(),
+      ...(currentReplyTo ? { replyTo: currentReplyTo } : {})
+    }])
     setText("")
+    setReplyingTo(null)
     if (textareaRef.current) textareaRef.current.focus();
+    // Always scroll to bottom when the user sends a message
+    requestAnimationFrame(() => scrollToBottom('smooth'));
+
     try {
-      const { data } = await axiosClient.post(`${import.meta.env.VITE_SERVER_URL}api/message/send`, {
-        conversationId: convid,
-        text: dummyText,
-        tempId
-      }, {
+      const payload = { conversationId: convid, text: dummyText, tempId };
+      if (currentReplyTo) {
+        payload.replyTo = {
+          messageId: currentReplyTo.messageId,
+          senderId: currentReplyTo.senderId,
+          text: currentReplyTo.text
+        };
+      }
+      await axiosClient.post(`${import.meta.env.VITE_SERVER_URL}api/message/send`, payload, {
         withCredentials: true,
       })
       typing = false;
@@ -173,11 +192,15 @@ export default function Chats() {
     }
   }
 
-  const addReaction = async (id, reaction) => {
-    setMessages(prev => prev.map(message => message._id === id ? { ...message, reaction: reaction } : message))
+  const addReaction = async (messageId, reaction) => {
+    if (!isOnlineContext) {
+      toast.error("No internet connection. Reconnect to continue.");
+      return;
+    }
+    setMessages(prev => prev.map(message => message._id === messageId ? { ...message, reaction: reaction } : message))
     setSelectedChat(null)
     try {
-      const { data } = await axiosClient.put(`${import.meta.env.VITE_SERVER_URL}api/message/react/${id}`, {
+      await axiosClient.put(`${import.meta.env.VITE_SERVER_URL}api/message/react/${messageId}`, {
         reaction
       }, { withCredentials: true })
     } catch (error) {
@@ -185,35 +208,38 @@ export default function Chats() {
     }
   }
 
-  const deleteMessage = async (id) => {
-    // setMessages(prev => prev.filter(message => message._id !== id))
-    // const lastMessage = conversations.find(({ conversationId }) => conversationId === convid)?.lastMessage
-    // if (lastMessage?._id === id) {
-    //   const prevMessage = messages.length ? messages[messages.length - 2] : null;
-    //   setCoversations(((prev) => prev.map((conversation) => (conversation.conversationId === convid)
-    //     ? { ...conversation, lastMessage: prevMessage }
-    //     : conversation)
-    //   ))
-    // }
-    updateMessagelistAndLastmessage(id, convid)
+  const deleteMessage = async (messageId) => {
+    if (!isOnlineContext) {
+      toast.error("No internet connection. Reconnect to continue.");
+      return;
+    }
+    const deleteId = toast.loading("Deleting Message");
+    updateMessagelistAndLastmessage(messageId, convid)
     setSelectedChat(null)
     try {
-      const { data } = await axiosClient.delete(`${import.meta.env.VITE_SERVER_URL}api/message/delete/${id}`, { withCredentials: true });
+      await axiosClient.delete(`${import.meta.env.VITE_SERVER_URL}api/message/delete/${messageId}`, { withCredentials: true });
+      toast.dismiss(deleteId);
       toast.success("message deleted ")
     } catch (error) {
+      toast.dismiss(deleteId);
       console.log(error)
       toast.error("message not deleted")
     }
   }
 
   const editMessage = async () => {
+    if (!isOnlineContext) {
+        toast.error("No internet connection. Reconnect to continue.");
+        return;
+    }
     if (text.trim().length === 0) return;
     const dummyText = text.trim();
     setMessages(prev => prev.map(message => message._id === selectedChat.id ? { ...message, text: dummyText } : message));
     setText("")
+    setIsEditingMessage(false)
     if (textareaRef.current) textareaRef.current.focus();
     try {
-      const { data } = await axiosClient.put(`${import.meta.env.VITE_SERVER_URL}api/message/edit/${selectedChat.id}`, {
+      await axiosClient.put(`${import.meta.env.VITE_SERVER_URL}api/message/edit/${selectedChat.id}`, {
         editedText: dummyText
       }, {
         withCredentials: true,
@@ -224,6 +250,16 @@ export default function Chats() {
       console.log(error)
     }
   }
+
+  /** Scroll to the original message and briefly highlight it */
+  const scrollToMessage = (messageId) => {
+    const el = messageRefs.current[messageId];
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setHighlightedId(messageId);
+      setTimeout(() => setHighlightedId(null), 1600);
+    }
+  };
 
   useEffect(() => {
     socket.emit('join-room', convid);
@@ -239,18 +275,11 @@ export default function Chats() {
     }
   }, [convid])
 
-  useEffect(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTo({
-        top: chatRef.current.scrollHeight,
-        behavior: "smooth",
-      });
-    }
-  }, [messages, isTyping]);
-
-  useEffect(() => {
-
-  })
+  // Removed: catch-all scroll useEffect([messages, isTyping])
+  // Scroll is now handled explicitly at three precise moments:
+  //   1. fetchMessages → instant jump after load
+  //   2. sendMessage  → smooth scroll after optimistic message
+  //   3. handleReceive → smooth scroll only when near bottom
 
   useEffect(() => {
     const handleCloseMenu = (e) => {
@@ -266,7 +295,6 @@ export default function Chats() {
 
   useEffect(() => {
     const handleReceive = (payload) => {
-      console.log("handle receive function socket")
       setMessages((prev) => {
         const idx = prev.findIndex((m) => m._id === payload?.message.tempId)
         if (idx !== -1) {
@@ -274,11 +302,15 @@ export default function Chats() {
           copy[idx] = payload.message
           return copy;
         }
-
         return [...prev, payload.message]
       })
       socket.emit('seen-message', { conversationId: convid, userId: user?.id })
       markConversationAsRead(payload?.message?.conversationId, user?.id)
+      // Only auto-scroll for incoming messages when the user is already near the bottom
+      // This prevents interrupting a user who is reading old messages
+      requestAnimationFrame(() => {
+        if (isNearBottom()) scrollToBottom('smooth');
+      });
     };
 
     const handleTyping = (payload) => {
@@ -311,15 +343,6 @@ export default function Chats() {
 
     const handleDelete = (payload) => {
       if (payload?.conversationId === convid && payload?.senderId !== user?.id) {
-        // setMessages(prev => prev.filter(message => message._id !== payload._id))
-        // const lastMessage = conversations.find(({ conversationId }) => conversationId === convid)?.lastMessage
-        // if (lastMessage?._id === id) {
-        //   const prevMessage = messages.length ? messages[messages.length - 2] : null;
-        //   setCoversations(((prev) => prev.map((conversation) => (conversation.conversationId === convid)
-        //     ? { ...conversation, lastMessage: prevMessage }
-        //     : conversation)
-        //   ))
-        // }
         updateMessagelistAndLastmessage(payload?._id, convid)
       }
     }
@@ -349,14 +372,9 @@ export default function Chats() {
     };
   }, [convid]);
 
-
-
-
-
   return (
-    <div 
-      className="flex flex-col fixed inset-0 md:static w-full md:h-screen bg-[var(--bg-page)] z-50 md:z-auto overscroll-none overflow-hidden"
-      style={{ height: viewportHeight ? `${viewportHeight}px` : '100dvh' }}
+    <div
+      className="flex flex-col h-full w-full bg-[var(--bg-page)] overscroll-none overflow-hidden"
     >
       <div className="header shrink-0 flex py-2 px-3 md:p-1.5 bg-[var(--bg-surface)]/95 backdrop-blur-md border-b border-[var(--border-soft)] items-center justify-between z-20 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
         <div className="user flex items-center">
@@ -416,20 +434,30 @@ export default function Chats() {
       </div>
 
       {/* ---------------Appears when (showChatInfo) ---------------- */}
-      <div className={`chatinfo w-full h-full absolute top-0 bottom-0 z-50 ${showChatInfo ? "left-0" : "-left-[100%]"} transition-all duration-500 ease-in-out `}>
-        <ChatInformation setShowChatInfo={setShowChatInfo} {...location.state} />
-      </div>
-
-      {/* ---------------Appears when (selectedChat?.isUserMessage) ---------------- */}
-
-      {/* OptionBar has been replaced by the contextual FloatingActionMenu in Chat.jsx */}
+      <AnimatePresence>
+        {showChatInfo && (
+          <motion.div
+            {...slideInRight}
+            className="chatinfo w-full h-full absolute top-0 left-0 bottom-0 z-50 bg-[var(--bg-surface)] shadow-2xl"
+          >
+            <ChatInformation setShowChatInfo={setShowChatInfo} {...location.state} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ---------------Appears when (isGroup && selectedChat && showSeenBy) ---------------- */}
       <div className={`seebBy absolute z-50 left-0 w-full ${(selectedChat && showSeenBy && isGroup) ? "bottom-0" : "-bottom-[100%]"} transition-all duration-500 ease-in-out `}>
         {isGroup && <MessageSeenByUser seenBy={selectedChat?.seenBy} members={members} />}
       </div>
 
-      <div ref={chatRef} className="chats flex-1 min-h-0 p-2 overflow-y-auto hide-scrollbar pb-4 space-y-3">
+      {/* ── Chat messages area ── */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        ref={chatRef}
+        className="chats flex-1 min-h-0 p-2 overflow-y-auto hide-scrollbar pb-4 space-y-3"
+      >
         {isChatLoading
           ? <ChatSkeleton />
           : (messages?.length === 0)
@@ -472,13 +500,24 @@ export default function Chats() {
                     setText={setText}
                     setShowSeenBy={setShowSeenBy}
                     setIsEditingMessage={setIsEditingMessage}
+                    onReply={(info) => {
+                      setReplyingTo(info);
+                      setSelectedChat(null);
+                      textareaRef.current?.focus();
+                    }}
+                    onScrollToMessage={scrollToMessage}
+                    messageRef={{
+                      set: (el) => { if (el && message._id) messageRefs.current[message._id] = el; }
+                    }}
+                    isHighlighted={highlightedId === message._id}
                   />
                 );
                 return acc;
               }, [])}
         {isTyping && <TypingIndicator />}
-      </div>
+      </motion.div>
 
+      {/* ── Compose area ── */}
       <div className="chatbox shrink-0 w-full px-3 pb-3 pt-1 bg-[var(--bg-page)] relative z-40">
         {isEditingMessage && (
           <div className="mb-1 mx-1 px-3 py-1.5 bg-[var(--bg-active)] border border-[var(--border-soft)] rounded-xl flex items-center justify-between shadow-[var(--shadow-xs)]">
@@ -488,24 +527,40 @@ export default function Chats() {
             </button>
           </div>
         )}
+
+        {/* Reply Composer */}
+        <AnimatePresence>
+          {replyingTo && (
+            <ReplyComposer
+              replyingTo={replyingTo}
+              onCancel={() => setReplyingTo(null)}
+              currentUserId={user?.id}
+              members={members}
+            />
+          )}
+        </AnimatePresence>
+
         <div className="flex items-end justify-between gap-2 bg-[var(--bg-surface)] rounded-[20px] shadow-[var(--shadow-sm)] pl-4 pr-1 py-1 border border-[var(--border-medium)] focus-within:border-[var(--accent)] focus-within:ring-1 focus-within:ring-[var(--accent)] transition-all duration-200">
           <textarea
+            disabled={!isOnlineContext || loading}
             ref={textareaRef}
             value={text}
             onChange={handleOnChange}
             onKeyDown={handleKeyDown}
             rows={1}
-            placeholder="Message..."
-            className="flex-grow min-w-0 bg-transparent outline-none text-base md:text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] resize-none py-2.5 hide-scrollbar leading-relaxed"
+            placeholder={isOnlineContext ? "Message..." : "Reconnect to send messages..."}
+            className="flex-grow min-w-0 bg-transparent outline-none text-base md:text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] resize-none py-2.5 hide-scrollbar leading-relaxed disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ maxHeight: '120px' }}
           />
-          <button
-            disabled={text.trim().length === 0 || loading}
+          <motion.button
+            whileHover={(!loading && text.trim().length > 0 && isOnlineContext) ? hoverScale.scale : 1}
+            whileTap={(!loading && text.trim().length > 0 && isOnlineContext) ? tapScale.scale : 1}
+            disabled={!isOnlineContext || loading || text.trim().length === 0}
             onClick={isEditingMessage ? editMessage : sendMessage}
-            className="sendbutton shrink-0 p-2.5 rounded-full primary-bg active:scale-90 transition-all duration-150 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100"
+            className="sendbutton shrink-0 p-2.5 rounded-full primary-bg transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <BsFillSendFill className="text-lg text-white" />
-          </button>
+            <BsFillSendFill className="text-white text-base md:text-sm -ml-0.5" />
+          </motion.button>
         </div>
       </div>
     </div>

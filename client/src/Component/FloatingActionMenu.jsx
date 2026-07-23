@@ -2,7 +2,11 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { BiMessageSquareEdit } from "react-icons/bi";
 import { MdOutlineDeleteOutline, MdContentCopy } from "react-icons/md";
 import { FaRegEye } from "react-icons/fa";
+import { MdOutlineAddReaction } from "react-icons/md";
+import { IoArrowUndoOutline } from "react-icons/io5";
 import toast from "react-hot-toast";
+import { motion } from "motion/react";
+import { hoverScale, tapScale } from "@/utils/animations";
 
 export default function FloatingActionMenu({ 
   deleteMessage, 
@@ -13,7 +17,9 @@ export default function FloatingActionMenu({
   isGroup, 
   setIsEditingMessage,
   isUserMessage,
-  containerRef
+  containerRef,
+  onOpenReactions,
+  onReply
 }) {
   const menuRef = useRef(null);
   const [position, setPosition] = useState({ top: 'auto', bottom: 'auto', left: 'auto', right: 'auto', transform: 'scale(0.95)', opacity: 0 });
@@ -64,28 +70,42 @@ export default function FloatingActionMenu({
   }, [containerRef, isUserMessage]);
 
   const ActionButton = ({ onClick, icon, label, colorClass, hoverClass }) => (
-    <button
+    <motion.button
+      whileHover={hoverScale.scale}
+      whileTap={tapScale.scale}
       onClick={(e) => {
         e.stopPropagation();
         onClick();
       }}
       title={label}
-      className={`w-9 h-9 rounded-full flex flex-shrink-0 items-center justify-center bg-white dark:bg-black/20 border shadow-[var(--shadow-xs)] transition-all hover:scale-110 active:scale-95 cursor-pointer ${colorClass} ${hoverClass}`}
+      className={`w-9 h-9 rounded-full flex flex-shrink-0 items-center justify-center bg-white dark:bg-black/20 border shadow-[var(--shadow-xs)] transition-colors cursor-pointer ${colorClass} ${hoverClass}`}
     >
       {icon}
-    </button>
+    </motion.button>
   );
 
   return (
-    <div 
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.15 }}
       ref={menuRef}
       style={{
         ...position,
-        transition: 'transform 0.15s ease-out, opacity 0.15s ease-out',
         transformOrigin: isUserMessage ? (position.bottom ? 'bottom right' : 'top right') : (position.bottom ? 'bottom left' : 'top left')
       }}
-      className="absolute z-[60] flex flex-row gap-2 p-1.5 bg-white/95 dark:bg-black/80 backdrop-blur-md rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-[var(--border-soft)]"
+      className={`absolute z-[60] flex flex-row gap-2 p-1.5 bg-white/95 dark:bg-black/80 backdrop-blur-md rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-[var(--border-soft)]`}
     >
+      {/* Reply Action (Available for all) */}
+      <ActionButton 
+        onClick={onReply || (() => {})} 
+        icon={<IoArrowUndoOutline className="text-lg" />} 
+        label="Reply" 
+        colorClass="border-green-200 text-green-500"
+        hoverClass="hover:bg-green-50 hover:text-green-600 hover:border-green-300"
+      />
+
       {/* Copy Action (Available for all) */}
       <ActionButton 
         onClick={handleCopy} 
@@ -93,6 +113,15 @@ export default function FloatingActionMenu({
         label="Copy" 
         colorClass="border-slate-200 text-slate-500"
         hoverClass="hover:bg-slate-50 hover:text-slate-700 hover:border-slate-300"
+      />
+
+      {/* React Action (Available for all) */}
+      <ActionButton 
+        onClick={onOpenReactions} 
+        icon={<MdOutlineAddReaction className="text-lg" />} 
+        label="React" 
+        colorClass="border-amber-200 text-amber-500"
+        hoverClass="hover:bg-amber-50 hover:text-amber-600 hover:border-amber-300"
       />
 
       {/* Edit/Delete/Seen By (Available for sender only) */}
@@ -123,6 +152,6 @@ export default function FloatingActionMenu({
           )}
         </>
       )}
-    </div>
+    </motion.div>
   );
 }
