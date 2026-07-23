@@ -1,17 +1,40 @@
 module.exports = (io, socket, onlineUsers) => {
   socket.on("setup", (userId) => {
     socket.join(`user:${userId}`);
-    onlineUsers.set(userId, socket.id);
+    
+    // Attach userId to socket for easy lookup on disconnect
+    socket.userId = userId;
+    
+    if (!onlineUsers.has(userId)) {
+      onlineUsers.set(userId, new Set());
+    }
+    onlineUsers.get(userId).add(socket.id);
+    
     io.emit('online-users', Array.from(onlineUsers.keys()));
   });
 
   socket.on('disconnect', () => {
-    for (let [userId, id] of onlineUsers.entries()) {
-      if (id === socket.id) {
-        onlineUsers.delete(userId);
-        break;
+    if (socket.userId) {
+      const userSockets = onlineUsers.get(socket.userId);
+      if (userSockets) {
+        userSockets.delete(socket.id);
+        if (userSockets.size === 0) {
+          onlineUsers.delete(socket.userId);
+        }
+      }
+      io.emit("online-users", Array.from(onlineUsers.keys()));
+    } else {
+      // Fallback for sockets that somehow got in without setting socket.userId
+      for (let [userId, sockets] of onlineUsers.entries()) {
+        if (sockets.has(socket.id)) {
+          sockets.delete(socket.id);
+          if (sockets.size === 0) {
+            onlineUsers.delete(userId);
+          }
+          io.emit("online-users", Array.from(onlineUsers.keys()));
+          break;
+        }
       }
     }
-    io.emit("online-users", Array.from(onlineUsers.keys()));
   });
 };
