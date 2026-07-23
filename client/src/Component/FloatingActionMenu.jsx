@@ -78,7 +78,7 @@ export default function FloatingActionMenu({
         onClick();
       }}
       title={label}
-      className={`w-9 h-9 rounded-full flex flex-shrink-0 items-center justify-center bg-white dark:bg-black/20 border shadow-[var(--shadow-xs)] transition-colors cursor-pointer ${colorClass} ${hoverClass}`}
+      className={`w-9 h-9 rounded-full flex flex-shrink-0 items-center justify-center bg-[var(--bg-surface)] border shadow-[var(--shadow-xs)] transition-colors cursor-pointer ${colorClass} ${hoverClass}`}
     >
       {icon}
     </motion.button>
@@ -95,7 +95,7 @@ export default function FloatingActionMenu({
         ...position,
         transformOrigin: isUserMessage ? (position.bottom ? 'bottom right' : 'top right') : (position.bottom ? 'bottom left' : 'top left')
       }}
-      className={`absolute z-[60] flex flex-row gap-2 p-1.5 bg-white/95 dark:bg-black/80 backdrop-blur-md rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-[var(--border-soft)]`}
+      className={`absolute z-[60] flex flex-row gap-2 p-1.5 bg-[var(--bg-surface)] backdrop-blur-md rounded-full shadow-[var(--shadow-md)] border border-[var(--border-medium)]`}
     >
       {/* Reply Action (Available for all) */}
       <ActionButton 
@@ -112,7 +112,7 @@ export default function FloatingActionMenu({
         icon={<MdContentCopy className="text-lg" />} 
         label="Copy" 
         colorClass="border-slate-200 text-slate-500"
-        hoverClass="hover:bg-slate-50 hover:text-slate-700 hover:border-slate-300"
+        hoverClass="hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] hover:border-[var(--border-medium)]"
       />
 
       {/* React Action (Available for all) */}

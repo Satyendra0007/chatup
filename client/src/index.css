@@ -47,6 +47,46 @@
 }
 
 /* ─────────────────────────────────────────
+   Dark Mode Tokens
+───────────────────────────────────────── */
+html.dark {
+  /* Surfaces */
+  --bg-page:     #0f172a;     /* slate-900 */
+  --bg-surface:  #1e293b;     /* slate-800 */
+  --bg-input:    #334155;     /* slate-700 */
+  --bg-hover:    #334155;     /* slate-700 */
+  --bg-active:   #0f766e;     /* accent dark variant as active selection */
+
+  /* Borders */
+  --border-soft:   rgba(255, 255, 255, 0.05);
+  --border-medium: rgba(255, 255, 255, 0.1);
+
+  /* Accent — keep vibrant for dark mode */
+  --accent:        #14b8a6;   /* teal-500 */
+  --accent-dark:   #0d9488;   /* teal-600 */
+  --accent-light:  #115e59;   /* teal-800 */
+  --accent-muted:  #0f766e;   /* teal-700 */
+
+  /* Sender bubble stays Accent, Receiver bubble adapts */
+  --bubble-out-bg:   #14b8a6;
+  --bubble-out-text: #FFFFFF;
+
+  --bubble-in-bg:   #1e293b;  /* matches surface */
+  --bubble-in-text: #f8fafc;  /* slate-50 */
+
+  /* Text */
+  --text-primary:   #f8fafc;  /* slate-50 */
+  --text-secondary: #94a3b8;  /* slate-400 */
+  --text-muted:     #64748b;  /* slate-500 */
+
+  /* Elevation - reduce shadows in dark mode for subtle depth */
+  --shadow-xs:  0 1px 2px rgba(0,0,0,0.3);
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md:  0 4px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-fab: 0 4px 16px rgba(20,184,166,0.3), 0 2px 6px rgba(0,0,0,0.4);
+}
+
+/* ─────────────────────────────────────────
    Base
 ───────────────────────────────────────── */
 * {
@@ -74,6 +114,11 @@ body {
   overflow: hidden;
   overscroll-behavior: none;
   background-color: var(--bg-page);
+  color: var(--text-primary);
+  /* Smooth theme transitions */
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
   /* Initial value — JS will update this on every visualViewport resize */
   --app-h: 100dvh;
 }
@@ -102,9 +147,13 @@ body {
   100% { background-position:  200% 0; }
 }
 .shimmer {
-  background: linear-gradient(90deg, #eef0f2 25%, #e2e5e8 50%, #eef0f2 75%);
+  background: linear-gradient(90deg, var(--bg-hover) 25%, var(--bg-input) 50%, var(--bg-hover) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.6s infinite;
+}
+
+html.dark .shimmer {
+  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
 }
 
 /* Message appear */
@@ -127,14 +176,41 @@ body {
 
 /* Reply scroll highlight — briefly flashes when navigating to an original message */
 @keyframes reply-flash {
-  0%   { background-color: transparent; }
-  20%  { background-color: rgba(13, 148, 136, 0.15); }
-  80%  { background-color: rgba(13, 148, 136, 0.15); }
+  0% { background-color: var(--bg-active); }
+  50% { background-color: var(--bg-active); }
   100% { background-color: transparent; }
 }
+
 .reply-highlight {
-  animation: reply-flash 1.4s ease-in-out both;
+  animation: reply-flash 2s ease-out;
   border-radius: 12px;
+}
+
+/* ─────────────────────────────────────────
+   Custom Scrollbar System
+───────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-medium) transparent;
 }
 
 /* Hover-reveal quick reactions (Desktop only) */

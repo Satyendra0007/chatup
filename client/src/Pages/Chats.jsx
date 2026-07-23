@@ -19,6 +19,8 @@ import ReplyComposer from "@/Component/ReplyComposer";
 import { motion, AnimatePresence } from "motion/react";
 import { slideInRight, hoverScale, tapScale } from "@/utils/animations";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
+import { useCall } from "@/Context/CallContext";
+import { MdCall, MdVideocam } from "react-icons/md";
 
 export default function Chats() {
   const { user } = useUser();
@@ -26,6 +28,7 @@ export default function Chats() {
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(false)
   const [isChatLoading, setIsChatLoading] = useState(false);
+  const { startCall } = useCall();
   const [text, setText] = useState("")
   const [showChatInfo, setShowChatInfo] = useState(false);
   const [showSeenBy, setShowSeenBy] = useState(false)
@@ -379,7 +382,7 @@ export default function Chats() {
       <div className="header shrink-0 flex py-2 px-3 md:p-1.5 bg-[var(--bg-surface)]/95 backdrop-blur-md border-b border-[var(--border-soft)] items-center justify-between z-20 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
         <div className="user flex items-center">
           <Link to="/conversation">
-            <div className="text-lg h-10 w-10 flex-shrink-0 flex justify-center items-center hover:bg-gray-100 rounded-full text-gray-500 transition-colors md:hidden">
+            <div className="text-lg h-10 w-10 flex-shrink-0 flex justify-center items-center hover:bg-[var(--bg-hover)] rounded-full text-[var(--text-secondary)] transition-colors md:hidden">
               <FaArrowLeft />
             </div>
           </Link>
@@ -399,11 +402,11 @@ export default function Chats() {
             </div>
             {/* Name + status */}
             <div className="flex flex-col">
-              <h3 className="font-semibold text-sm text-gray-900 capitalize leading-tight">{name}</h3>
+              <h3 className="font-semibold text-sm text-[var(--text-primary)] capitalize leading-tight">{name}</h3>
               {isGroup ? (
                 <div className="flex items-center gap-1 overflow-hidden">
                   {onlineGroupUsers.length === 0 ? (
-                    <p className="text-[10px] text-gray-400">No active members</p>
+                    <p className="text-[10px] text-[var(--text-muted)]">No active members</p>
                   ) : (
                     <div className="flex items-center gap-1 overflow-scroll hide-scrollbar">
                       {onlineGroupUsers.map(u => <OnlineBadge key={u.id} {...u} />)}
@@ -423,10 +426,29 @@ export default function Chats() {
             </div>
           </div>
         </div>
-        <div className="info-button">
+        <div className="flex items-center gap-1 md:gap-2">
+          {!isGroup && (
+            <>
+              <button
+                className="p-2 rounded-full hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] transition-colors cursor-pointer"
+                onClick={() => startCall(receiverId, name, imageUrl || userimage, false)}
+                title="Voice Call"
+              >
+                <MdCall className="text-xl" />
+              </button>
+              <button
+                className="p-2 rounded-full hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] transition-colors cursor-pointer"
+                onClick={() => startCall(receiverId, name, imageUrl || userimage, true)}
+                title="Video Call"
+              >
+                <MdVideocam className="text-xl" />
+              </button>
+            </>
+          )}
           <button
             className="p-2 rounded-full hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] transition-colors cursor-pointer"
             onClick={() => setShowChatInfo(prev => !prev)}
+            title="Chat Info"
           >
             <GoInfo className="text-xl" />
           </button>

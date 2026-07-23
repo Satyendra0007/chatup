@@ -43,7 +43,7 @@ export default function AiResponse({ _id, prompt, response, handleCopy, deleteRe
             alt="AI"
           />
           <div
-            className="max-w-[80%] rounded-2xl rounded-tl-[4px] px-2.5 py-2 shadow-[0_1px_2px_rgba(0,0,0,0.06)] border border-black/[0.07]"
+            className="max-w-[80%] rounded-2xl rounded-tl-[4px] px-2.5 py-2 shadow-[var(--shadow-xs)] border border-[var(--border-medium)]"
             style={{ backgroundColor: 'var(--bubble-in-bg)', color: 'var(--bubble-in-text)' }}
           >
             {/* Sender label */}
@@ -59,13 +59,13 @@ export default function AiResponse({ _id, prompt, response, handleCopy, deleteRe
             </div>
 
             {/* Action buttons */}
-            <div className="flex items-center justify-end gap-1.5 mt-2 pt-1.5 border-t border-black/[0.06]">
+            <div className="flex items-center justify-end gap-1.5 mt-2 pt-1.5 border-t border-[var(--border-soft)]">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleCopy(response)}
                 title="Copy response"
-                className="w-7 h-7 rounded-full flex items-center justify-center border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700 hover:border-slate-300 transition-colors cursor-pointer text-sm"
+                className="w-7 h-7 rounded-full flex items-center justify-center border border-[var(--border-medium)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] transition-colors cursor-pointer text-sm"
               >
                 <FaRegCopy />
               </motion.button>
@@ -74,7 +74,7 @@ export default function AiResponse({ _id, prompt, response, handleCopy, deleteRe
                 whileTap={{ scale: 0.95 }}
                 onClick={() => deleteResponse(_id)}
                 title="Delete"
-                className="w-7 h-7 rounded-full flex items-center justify-center border border-red-200 text-red-400 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-colors cursor-pointer text-base"
+                className="w-7 h-7 rounded-full flex items-center justify-center border border-[var(--border-medium)] text-rose-500 hover:bg-rose-500/10 hover:text-rose-600 transition-colors cursor-pointer text-base"
               >
                 <MdDeleteOutline />
               </motion.button>

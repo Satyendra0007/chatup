@@ -147,9 +147,9 @@ export default function Conversations() {
               <motion.div
                 whileHover={hoverScale.scale}
                 whileTap={tapScale.scale}
-                className='p-2 bg-[var(--bg-surface)] border border-[var(--border-soft)] rounded-full cursor-pointer transition-all shadow-[var(--shadow-md)]'
+                className='p-2 bg-[var(--bg-surface)] hover:bg-[var(--bg-hover)] active:bg-[var(--bg-active)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] outline-none border border-[var(--border-soft)] rounded-full cursor-pointer transition-all shadow-[var(--shadow-md)] flex items-center justify-center'
               >
-                <img className='w-7' src={ai} alt="AI Chat" />
+                <img className='w-7 dark:invert dark:mix-blend-screen mix-blend-multiply' src={ai} alt="AI Chat" />
               </motion.div>
             </Link>
             <Link to="/chatlayout/search">

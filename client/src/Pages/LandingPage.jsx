@@ -19,7 +19,7 @@ export default function LandingPage() {
           <div className="image absolute z-10 top-0 h-full w-full ">
             <img className=' h-full mx-auto ' src={girl} alt="" />
           </div>
-          <div className="message w-48 bg-white flex justify-center items-center backdrop-blur-lg absolute top-52  left-40 md:left-1/2 md:top-80 z-20 text-[10px] gap-2 rounded-md p-1">
+          <div className="message w-48 bg-[var(--bg-surface)] text-[var(--text-primary)] border border-[var(--border-soft)] flex justify-center items-center backdrop-blur-lg absolute top-52 left-40 md:left-1/2 md:top-80 z-20 text-[10px] gap-2 rounded-md p-1 shadow-[var(--shadow-sm)]">
             <img className='w-7 h-7 rounded-full ' src={user} alt="" />
             <p className=''>Lorem ipsum dolor sit amet jsklf kljf ksl ❤️ .</p>
           </div>
@@ -27,7 +27,7 @@ export default function LandingPage() {
         <div className="bottom flex flex-col gap-4 p-4 md:p-10 md:w-1/2  md:gap-y-10">
           <div className="text space-y-4 md:space-y-9">
             <h1 className='text-3xl font-semibold md:text-5xl md:leading-16'>Let's Connect with People in Real Time</h1>
-            <p className='text-sm text-gray-800'>✨ ChatUp keeps you closer — whether it’s midnight chats 🌙, quick updates with friends 👥, or sharing ideas with your team 💡. Stay connected in real-time ⚡.</p>
+            <p className='text-sm text-[var(--text-secondary)]'>✨ ChatUp keeps you closer — whether it’s midnight chats 🌙, quick updates with friends 👥, or sharing ideas with your team 💡. Stay connected in real-time ⚡.</p>
           </div>
           <div className="button flex gap-1 items-center">
             <button onClick={() => openSignUp()} className='primary-bg text-sm py-3 px-8 text-white rounded-full flex justify-center items-center gap-2 cursor-pointer hover:scale-105 transition-all duration-300 ease-in-out'>

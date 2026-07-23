@@ -5,6 +5,8 @@ import { createRoot } from 'react-dom/client'
 import { ClerkProvider } from '@clerk/clerk-react'
 import { BrowserRouter } from 'react-router-dom'
 import ConversationsWrapper from './Context/ConversationsStore'
+import { ThemeProvider } from './Context/ThemeProvider'
+import { CallProvider } from './Context/CallContext'
 import useOnlineStatus from './hooks/useOnlineStatus'
 import { Toaster } from 'react-hot-toast'
 
@@ -42,17 +44,21 @@ if (window.visualViewport) {
 const Root = () => {
   return (
     <StrictMode>
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/"  >
-        <ConversationsWrapper>
-          <BrowserRouter>
-            <Toaster
-              position="top-center"
-              reverseOrder={false}
-            />
-            <App />
-          </BrowserRouter>
-        </ConversationsWrapper>
-      </ClerkProvider>
+      <ThemeProvider>
+        <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+          <CallProvider>
+            <ConversationsWrapper>
+              <BrowserRouter>
+                <Toaster
+                  position="top-center"
+                  reverseOrder={false}
+                />
+                <App />
+              </BrowserRouter>
+            </ConversationsWrapper>
+          </CallProvider>
+        </ClerkProvider>
+      </ThemeProvider>
     </StrictMode>
   );
 }

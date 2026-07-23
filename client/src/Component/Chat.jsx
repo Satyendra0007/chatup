@@ -75,7 +75,7 @@ export default function Chat({
         {isUser ? (
           /* ── Sender bubble (right) ── */
           <div
-            className={`chat-bubble-group flex justify-end select-none px-2 items-end gap-1 ${isThisChatSelected ? "bg-black/[0.04] rounded-xl" : ""}`}
+            className={`chat-bubble-group flex justify-end select-none px-2 items-end gap-1 ${isThisChatSelected ? "bg-[var(--bg-active)] rounded-xl" : ""}`}
             {...handleLongPress()}
             onContextMenu={(e) => {
               e.preventDefault();
@@ -123,7 +123,7 @@ export default function Chat({
               {reaction && (
                 <motion.div
                   {...reactionPop}
-                  className="flex items-center bg-white border border-black/[0.08] rounded-full px-1.5 py-[2px] shadow-[0_1px_3px_rgba(0,0,0,0.1)] -mt-2 mr-1 z-10 self-end"
+                  className="flex items-center bg-[var(--bg-surface)] border border-[var(--border-soft)] rounded-full px-1.5 py-[2px] shadow-[0_1px_3px_rgba(0,0,0,0.1)] -mt-2 mr-1 z-10 self-end"
                 >
                   <span className="text-sm leading-none">{reaction}</span>
                 </motion.div>
@@ -134,7 +134,7 @@ export default function Chat({
         ) : (
           /* ── Receiver bubble (left) ── */
           <div
-            className={`chat-bubble-group flex gap-1.5 select-none px-2 items-end ${isThisChatSelected ? "bg-black/[0.04] rounded-xl" : ""}`}
+            className={`chat-bubble-group flex gap-1.5 select-none px-2 items-end ${isThisChatSelected ? "bg-[var(--bg-active)] rounded-xl" : ""}`}
             {...handleLongPress()}
             onContextMenu={(e) => {
               e.preventDefault();
@@ -144,14 +144,14 @@ export default function Chat({
           >
             {isGroup && (
               <div className="flex-shrink-0 self-start mt-0.5">
-                <img className="w-6 h-6 rounded-full object-cover ring-1 ring-black/[0.06]" src={senderInfo?.imageUrl} alt="" />
+                <img className="w-6 h-6 rounded-full object-cover ring-1 ring-[var(--border-soft)]" src={senderInfo?.imageUrl} alt="" />
               </div>
             )}
 
             <div className="flex flex-col items-start">
               {/* Receiver bubble — off-white surface with soft border */}
               <div
-                className="message max-w-60 min-w-[4.5rem] rounded-2xl rounded-tl-[4px] px-2.5 pt-1 pb-1 shadow-[0_1px_2px_rgba(0,0,0,0.06)] border border-black/[0.07]"
+                className="message max-w-60 min-w-[4.5rem] rounded-2xl rounded-tl-[4px] px-2.5 pt-1 pb-1 shadow-[var(--shadow-sm)] border border-[var(--border-soft)]"
                 style={{ backgroundColor: 'var(--bubble-in-bg)', color: 'var(--bubble-in-text)' }}
               >
                 {isGroup && (
@@ -180,7 +180,7 @@ export default function Chat({
               {reaction && (
                 <motion.div
                   {...reactionPop}
-                  className="flex items-center bg-white border border-black/[0.08] rounded-full px-1.5 py-[2px] shadow-[0_1px_3px_rgba(0,0,0,0.1)] -mt-2 ml-1 z-10"
+                  className="flex items-center bg-[var(--bg-surface)] border border-[var(--border-soft)] rounded-full px-1.5 py-[2px] shadow-[0_1px_3px_rgba(0,0,0,0.1)] -mt-2 ml-1 z-10"
                 >
                   <span className="text-sm leading-none">{reaction}</span>
                 </motion.div>

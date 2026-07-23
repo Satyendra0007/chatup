@@ -10,6 +10,8 @@ import ChatLayout from "./Pages/ChatLayout";
 import AiChat from "./Pages/AiChat";
 import { SignedIn, SignedOut } from '@clerk/clerk-react'
 import OfflineBanner from "./Component/OfflineBanner";
+import IncomingCallModal from './Component/Call/IncomingCallModal'
+import ActiveCallScreen from './Component/Call/ActiveCallScreen'
 
 function App() {
   const location = useLocation();
@@ -21,6 +23,8 @@ function App() {
       style={{ height: 'var(--app-h, 100dvh)' }}
       className="w-full overflow-hidden flex flex-col"
     >
+      <IncomingCallModal />
+      <ActiveCallScreen />
       <OfflineBanner />
       <RedirectAfterSignIn />
       <AnimatePresence mode="wait">

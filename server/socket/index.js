@@ -1,6 +1,7 @@
 const presenceSocket = require("./presence.socket");
 const conversationSocket = require("./conversation.socket");
 const messageSocket = require("./message.socket");
+const callSocket = require("./call.socket");
 
 const onlineUsers = new Map();
 
@@ -11,5 +12,6 @@ module.exports.setupSockets = (io) => {
     presenceSocket(io, socket, onlineUsers);
     conversationSocket(io, socket);
     messageSocket(io, socket);
+    callSocket(io, socket, onlineUsers);
   });
 };
